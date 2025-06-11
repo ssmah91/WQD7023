@@ -12,7 +12,16 @@ from sklearn.ensemble import GradientBoostingClassifier
 import warnings
 warnings.filterwarnings("ignore")
 
+# Load dataset
 df = pd.read_csv("df_final.csv")
+
+# Limit to model-specific columns (11 input features + 1 target)
+model_columns = [
+    'GeneralHealth', 'AgeCategory', 'HighBloodPressure', 'BMI',
+    'Highcholesterol', 'AlcoholDrinkers', 'Gender', 'RaceEthnicityCategory',
+    'PhysicalActivities', 'DifficultyWalking', 'HouseholdIncome', 'HadDiabetes'
+]
+df = df[model_columns]
 
 st.set_page_config(
     page_title="Diabetes Mellitus Prediction",

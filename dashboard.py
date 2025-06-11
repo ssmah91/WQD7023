@@ -165,7 +165,7 @@ elif page == "Data Info":
 
     # Boxplot
     st.markdown("#### 📦 Boxplot")
-    boxplot_cols = ['BMI', 'AgeCategory', 'HouseholdIncome']
+    boxplot_cols = ['PhysicalHealthDays', 'MentalHealthDays', 'AgeCategory']
     selected_box = st.selectbox("Select column for boxplot", boxplot_cols)
     fig2, ax2 = plt.subplots()
     sns.boxplot(x=df[selected_box], ax=ax2, color="lightgreen")

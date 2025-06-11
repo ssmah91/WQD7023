@@ -23,6 +23,20 @@ model_columns = [
 ]
 df = df[model_columns]
 
+# Apply human-readable mappings
+mappings = {
+    'GeneralHealth': {1: 'Poor', 2: 'Fair', 3: 'Good', 4: 'Very Good', 5: 'Excellent'},
+    'HighBloodPressure': {0: 'No', 1: 'Yes'},
+    'Highcholesterol': {0: 'No', 1: 'Yes'},
+    'AlcoholDrinkers': {0: 'No', 1: 'Yes'},
+    'Gender': {0: 'Female', 1: 'Male'},
+    'PhysicalActivities': {0: 'No', 1: 'Yes'},
+    'DifficultyWalking': {0: 'No', 1: 'Yes'},
+    'HouseholdIncome': {1: '<25k', 2: '25k-50k', 3: '50k-75k', 4: '75k-100k', 5: '100k+'},
+    'HadDiabetes': {0: 'No', 1: 'Yes'},
+    'RaceEthnicityCategory': {0: 'Non-Hispanic', 1: 'Hispanic'}
+}
+
 st.set_page_config(
     page_title="Diabetes Mellitus Prediction",
     page_icon="🩺",

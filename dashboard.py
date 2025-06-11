@@ -82,6 +82,13 @@ elif page == "Data Info":
     # Section 1: Interactive Dashboard
     st.subheader("🚀 Interactive Dashboard")
     with st.expander("Click to launch full data explorer", expanded=True):
+        @st.cache_resource
+        def get_pyg_renderer() -> "StreamlitRenderer":
+            return StreamlitRenderer(
+                df,
+                spec="./chart_meta_0.json",  # optional
+                kernel_computation=True
+            )
 
         renderer = get_pyg_renderer()
         renderer.explorer()

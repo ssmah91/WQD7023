@@ -76,56 +76,62 @@ if page == "Home":
 
 elif page == "Data Info":
 
-    st.title("📊 Data Information & Exploration")
+# --- Streamlit layout ---
+st.title("📊 Data Information & Exploration")
 
-    st.subheader("🚀 Interactive Dashboard")
-    
-    ### Part 1: Interactive Dashboard ###
-    with st.expander("", expanded=True):
-        df = pd.read_csv("df_final.csv")  # Load your data
+# Section 1: Interactive Dashboard
+st.subheader("🚀 Interactive Dashboard")
+with st.expander("Click to launch full data explorer", expanded=True):
+    @st.cache_resource
+    def get_pyg_renderer():
+        return StreamlitRenderer(df_display, spec="./chart_meta_0.json", kernel_computation=True)
+    renderer = get_pyg_renderer()
+    renderer.explorer()
 
-        # Map columns to human-readable names as before
-        # ...
+# Section 2: Visual Analysis
+st.subheader("📈 Key Visual Summaries")
 
-        # Pygwalker Renderer
-        @st.cache_resource
-        def get_pyg_renderer() -> "StreamlitRenderer":
-            return StreamlitRenderer(
-                df,
-                spec="./chart_meta_0.json",  # optional
-                kernel_computation=True
-            )
+# Distribution
+st.markdown("#### 📌 Distribution Plot")
+num_cols = df.select_dtypes(include='number').columns
+selected_dist = st.selectbox("Select column for distribution plot", num_cols)
+fig1, ax1 = plt.subplots()
+sns.histplot(df[selected_dist], bins=30, kde=True, ax=ax1, color="skyblue")
+ax1.set_title(f"Distribution of {selected_dist}")
+st.pyplot(fig1)
 
-        renderer = get_pyg_renderer()
-        renderer.explorer()
+# Boxplot
+st.markdown("#### 📦 Boxplot")
+selected_box = st.selectbox("Select column for boxplot", num_cols, key='box')
+fig2, ax2 = plt.subplots()
+sns.boxplot(x=df[selected_box], ax=ax2, color="lightgreen")
+ax2.set_title(f"Boxplot of {selected_box}")
+st.pyplot(fig2)
 
-    ### Part 2: Structured Data Summary ###
-    with st.expander("📘 Descriptive Summary & Metadata", expanded=False):
-        st.subheader("📌 Sample Data")
-        st.dataframe(df.head(10))
+# Correlation
+st.markdown("#### 🔗 Correlation Matrix")
+fig3, ax3 = plt.subplots(figsize=(10, 6))
+sns.heatmap(df[num_cols].corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax3)
+ax3.set_title("Correlation Matrix")
+st.pyplot(fig3)
 
-        st.subheader("🔍 Column Descriptions")
-        option = st.radio(
-            "Select view mode:",
-            ['View Summary', 'View Column Names', 'View Unique Values']
-        )
+# Section 3: Descriptive Summary
+st.subheader("📘 Descriptive Summary")
 
-        if option == 'View Summary':
-            st.write("### Dataset Summary:")
-            st.write(df.describe(include='all'))
+view_mode = st.radio("Choose a view:", ['View Summary', 'View Column Names', 'View Unique Values'])
 
-        elif option == 'View Column Names':
-            st.write("### Column Names:")
-            st.write(df.columns.tolist())
+if view_mode == 'View Summary':
+    st.write(df.describe(include='all'))
 
-        elif option == 'View Unique Values':
-            st.write("### Unique Values per Column:")
-            for col in df.columns:
-                unique_vals = df[col].dropna().unique()
-                st.markdown(f"**{col}** ({len(unique_vals)} unique): {unique_vals[:20]}")
-                if len(unique_vals) > 20:
-                    st.caption("🔎 Only showing first 20 unique values.")
+elif view_mode == 'View Column Names':
+    st.write(df.columns.tolist())
 
+elif view_mode == 'View Unique Values':
+    for col in df.columns:
+        unique_vals = df[col].dropna().unique()
+        st.markdown(f"**{col}** ({len(unique_vals)} unique): {unique_vals[:20]}")
+        if len(unique_vals) > 20:
+            st.caption("🔎 Showing only first 20 unique values")
 elif page == "Prediction":
     st.title("🩺 Diabetes Risk Prediction")
 

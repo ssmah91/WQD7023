@@ -136,14 +136,29 @@ elif page == "Data Info":
     selected_dist = st.selectbox("Select column for distribution plot", df_model.columns)
     
     fig1, ax1 = plt.subplots()
-    if df_model[selected_dist].dtype == 'object':
-        df_model[selected_dist].value_counts().plot(kind='bar', ax=ax1, color='skyblue')
-        ax1.set_ylabel("Count")
-    else:
-        sns.histplot(df_model[selected_dist], bins=30, kde=True, ax=ax1, color="skyblue")
+    col_data = df_model[selected_dist].dropna()
     
-    ax1.set_title(f"Distribution of {selected_dist}")
+    if col_data.dtype == 'object' or col_data.nunique() < 10:
+        # Bar plot for categorical or low unique values
+        counts = col_data.value_counts()
+        bars = ax1.bar(counts.index.astype(str), counts.values, color="skyblue")
+        ax1.set_ylabel("Count")
+        ax1.set_xlabel(selected_dist)
+        ax1.set_title(f"Distribution of {selected_dist}")
+    
+        # Add value labels
+        for bar in bars:
+            yval = bar.get_height()
+            ax1.text(bar.get_x() + bar.get_width()/2.0, yval + 1, int(yval), ha='center', va='bottom')
+    else:
+        # Histogram for numeric data
+        sns.histplot(col_data, bins=30, kde=True, ax=ax1, color="skyblue")
+        ax1.set_title(f"Distribution of {selected_dist}")
+        ax1.set_ylabel("Density")
+        ax1.set_xlabel(selected_dist)
+    
     st.pyplot(fig1)
+
 
     # 📦 Boxplot (only for continuous vars)
     st.markdown("#### 📦 Boxplot")

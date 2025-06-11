@@ -147,7 +147,7 @@ elif page == "Data Info":
         fig, ax = plt.subplots()
         wedges, texts, autotexts = ax.pie(
             plot_df['Count'], labels=plot_df['Category'], autopct='%1.1f%%', startangle=90)
-        ax.set_title(f"Pie Chart of {selected_col}")
+        ax.set_title(f"Distribution of {selected_col}")
         st.pyplot(fig)
 
     elif chart_type == 'Horizontal Bar':

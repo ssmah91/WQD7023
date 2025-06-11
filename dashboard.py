@@ -133,9 +133,15 @@ elif page == "Data Info":
 
     # 📌 Distribution Plot
     st.markdown("#### 📌 Distribution Plot")
-    selected_dist = st.selectbox("Select column for distribution plot", numeric_cols)
+    selected_dist = st.selectbox("Select column for distribution plot", df_model.columns)
+    
     fig1, ax1 = plt.subplots()
-    sns.histplot(df[selected_dist], bins=30, kde=True, ax=ax1, color="skyblue")
+    if df_model[selected_dist].dtype == 'object':
+        df_model[selected_dist].value_counts().plot(kind='bar', ax=ax1, color='skyblue')
+        ax1.set_ylabel("Count")
+    else:
+        sns.histplot(df_model[selected_dist], bins=30, kde=True, ax=ax1, color="skyblue")
+    
     ax1.set_title(f"Distribution of {selected_dist}")
     st.pyplot(fig1)
 

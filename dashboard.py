@@ -21,7 +21,7 @@ st.set_page_config(
 
 # Sidebar navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Pages", ["Home", "Data Info", "Prediction"])
+page = st.sidebar.radio("Pages", ["Home", "Data Info", "Prediction", "About Project"])
 
 # Apply full-screen responsive background to Home page only
 if page == "Home":
@@ -255,4 +255,37 @@ elif page == "Prediction":
                 st.info("🟢 The model predicts a **Low Risk of Diabetes**.")
         except Exception as e:
             st.error(f"Prediction failed: {e}")
+
+elif page == "About Project":
+    st.title("📚 About This Research Project")
+
+    st.subheader("🎯 Research Overview")
+    st.markdown("""
+    This project, titled **"Predictive Modeling for Detection of Diabetes Mellitus: A Study on Risk Factors and Machine Learning Approaches,"**
+    applies machine learning methods to identify individuals at risk for diabetes using health and lifestyle data from the BRFSS 2023 dataset.
+
+    The model was built using Gradient Boosting and optimized with SVMSMOTE to address class imbalance.
+    The app aims to support early identification and awareness.
+    """)
+
+    st.subheader("🛠️ Project Repository")
+    st.markdown("""
+    🔗 [View the code on GitHub](https://github.com/ssmah91/WQD7023)
+
+    Contents:
+    - Streamlit dashboard code
+    - Pretrained models and preprocessing scripts
+    - Dataset and analysis notebooks
+    """)
+
+    st.subheader("📽️ Research Slides")
+    st.markdown("""
+    👉 [View Full Slides](https://your-link.com)
+
+    st.subheader("🙌 Acknowledgements")
+    st.markdown("""
+    - Supervisor: Dr. [Your Name]
+    - Dataset: [CDC BRFSS 2023](https://www.cdc.gov/brfss/)
+    - Tools: Streamlit, scikit-learn, Pygwalker
+    """)
 

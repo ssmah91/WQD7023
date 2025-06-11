@@ -74,39 +74,66 @@ if page == "Home":
         unsafe_allow_html=True
     )
 
-elif page == "Data Info":
 
-    # --- Streamlit layout ---
+elif page == "Data Info":
     st.title("📊 Data Information & Exploration")
-    
+
+    # ✅ Define the model-related columns (11 features + 1 target)
+    model_columns = [
+        'GeneralHealth', 'AgeCategory', 'HighBloodPressure', 'BMI',
+        'Highcholesterol', 'AlcoholDrinkers', 'Gender', 'RaceEthnicityCategory',
+        'PhysicalActivities', 'DifficultyWalking', 'HouseholdIncome', 'HadDiabetes'
+    ]
+
+    # ✅ Load and filter only relevant columns
+    df = pd.read_csv("df_final.csv")  # or wherever your full data is
+    df_model = df[model_columns].copy()
+
+    # ✅ Apply human-readable mappings
+    mappings = {
+        'GeneralHealth': {1: 'Poor', 2: 'Fair', 3: 'Good', 4: 'Very Good', 5: 'Excellent'},
+        'AgeCategory': {
+            1: '18-24', 2: '25-29', 3: '30-34', 4: '35-39', 5: '40-44', 6: '45-49',
+            7: '50-54', 8: '55-59', 9: '60-64', 10: '65-69', 11: '70-74', 12: '75-79', 13: '80+'
+        },
+        'HighBloodPressure': {0: 'No', 1: 'Yes'},
+        'Highcholesterol': {0: 'No', 1: 'Yes'},
+        'AlcoholDrinkers': {0: 'No', 1: 'Yes'},
+        'Gender': {0: 'Female', 1: 'Male'},
+        'RaceEthnicityCategory': {1: 'White', 2: 'Black', 3: 'Asian', 4: 'Hispanic', 5: 'Other'},
+        'PhysicalActivities': {0: 'No', 1: 'Yes'},
+        'DifficultyWalking': {0: 'No', 1: 'Yes'},
+        'HouseholdIncome': {1: '<25k', 2: '25k-50k', 3: '50k-75k', 4: '75k-100k', 5: '100k+'},
+        'HadDiabetes': {0: 'No', 1: 'Yes'}
+    }
+
+    for col, map_dict in mappings.items():
+        if col in df_model.columns:
+            df_model[col] = df_model[col].map(map_dict)
+
     # Section 1: Interactive Dashboard
     st.subheader("🚀 Interactive Dashboard")
     with st.expander("Click to launch full data explorer", expanded=True):
         @st.cache_resource
-        def get_pyg_renderer() -> "StreamlitRenderer":
-            return StreamlitRenderer(
-                df,
-                spec="./chart_meta_0.json",  # optional
-                kernel_computation=True
-            )
-
+        def get_pyg_renderer():
+            return StreamlitRenderer(df_model, spec="./chart_meta_0.json", kernel_computation=True)
         renderer = get_pyg_renderer()
         renderer.explorer()
-    
+
     # Section 2: Visual Analysis
     st.subheader("📈 Key Visual Summaries")
-    
+
+    # Select only numeric columns for plotting
+    num_cols = df.select_dtypes(include='number')[model_columns].columns
+
     # Distribution
     st.markdown("#### 📌 Distribution Plot")
-    mapped_columns = list(map_dict.keys())
-    num_cols = df.select_dtypes(include='number').drop(columns=mapped_columns, errors='ignore').columns
-    
     selected_dist = st.selectbox("Select column for distribution plot", num_cols)
     fig1, ax1 = plt.subplots()
     sns.histplot(df[selected_dist], bins=30, kde=True, ax=ax1, color="skyblue")
     ax1.set_title(f"Distribution of {selected_dist}")
     st.pyplot(fig1)
-    
+
     # Boxplot
     st.markdown("#### 📦 Boxplot")
     selected_box = st.selectbox("Select column for boxplot", num_cols, key='box')
@@ -114,28 +141,27 @@ elif page == "Data Info":
     sns.boxplot(x=df[selected_box], ax=ax2, color="lightgreen")
     ax2.set_title(f"Boxplot of {selected_box}")
     st.pyplot(fig2)
-    
-    # Correlation
+
+    # Correlation Matrix
     st.markdown("#### 🔗 Correlation Matrix")
     fig3, ax3 = plt.subplots(figsize=(10, 6))
     sns.heatmap(df[num_cols].corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax3)
     ax3.set_title("Correlation Matrix")
     st.pyplot(fig3)
-    
+
     # Section 3: Descriptive Summary
     st.subheader("📘 Descriptive Summary")
-    
     view_mode = st.radio("Choose a view:", ['View Summary', 'View Column Names', 'View Unique Values'])
-    
+
     if view_mode == 'View Summary':
-        st.write(df.describe(include='all'))
-    
+        st.write(df_model.describe(include='all'))
+
     elif view_mode == 'View Column Names':
-        st.write(df.columns.tolist())
-    
+        st.write(df_model.columns.tolist())
+
     elif view_mode == 'View Unique Values':
-        for col in df.columns:
-            unique_vals = df[col].dropna().unique()
+        for col in df_model.columns:
+            unique_vals = df_model[col].dropna().unique()
             st.markdown(f"**{col}** ({len(unique_vals)} unique): {unique_vals[:20]}")
             if len(unique_vals) > 20:
                 st.caption("🔎 Showing only first 20 unique values")

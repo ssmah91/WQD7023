@@ -78,8 +78,10 @@ elif page == "Data Info":
 
     st.title("📊 Data Information & Exploration")
 
+    st.subheader("🚀 Interactive Dashboard")
+    
     ### Part 1: Interactive Dashboard ###
-    with st.expander("🚀 Interactive Dashboard (Pygwalker)", expanded=True):
+    with st.expander("", expanded=True):
         df = pd.read_csv("df_final.csv")  # Load your data
 
         # Map columns to human-readable names as before

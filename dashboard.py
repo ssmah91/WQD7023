@@ -74,7 +74,7 @@ if page == "Home":
         unsafe_allow_html=True
     )
 
-  elif page == "Data Info":
+elif page == "Data Info":
       
     # 🧭 Sidebar Navigation (used outside if needed)
     st.title("📊 Data Information & Exploration")

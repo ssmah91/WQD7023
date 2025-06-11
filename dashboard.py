@@ -252,8 +252,20 @@ elif page == "Prediction":
             st.success(f"Predicted Diabetes Risk: **{probability:.2%}**")
             if prediction == 1:
                 st.warning("⚠️ The model predicts a **High Risk of Diabetes**.")
+                st.markdown("""
+                **System Feedback:**  
+                Based on the information provided, you may be at a higher risk for developing diabetes.  
+                Please consider consulting a healthcare professional for personalized advice.  
+                Adopting healthier habits — such as regular exercise and a balanced diet — can make a positive difference.
+                """)
             else:
                 st.info("🟢 The model predicts a **Low Risk of Diabetes**.")
+                st.markdown("""
+                **System Feedback:**  
+                Your current health profile suggests a lower risk for diabetes.  
+                Keep maintaining healthy habits and regular check-ups to stay on track!
+                """)
+
         except Exception as e:
             st.error(f"Prediction failed: {e}")
 

@@ -165,12 +165,20 @@ elif page == "Data Info":
 
     # Boxplot
     st.markdown("#### 📦 Boxplot")
-    boxplot_cols = ['PhysicalHealthDays', 'MentalHealthDays', 'AgeCategory']
-    selected_box = st.selectbox("Select column for boxplot", boxplot_cols)
-    fig2, ax2 = plt.subplots()
-    sns.boxplot(x=df[selected_box], ax=ax2, color="lightgreen")
-    ax2.set_title(f"Boxplot of {selected_box}")
-    st.pyplot(fig2)
+    # Only plot boxplot for columns that exist
+    boxplot_candidates = ['PhysicalHealthDays', 'MentalHealthDays', 'AgeCategory']
+    existing_boxplot_cols = [col for col in boxplot_candidates if col in df.columns]
+    
+    if existing_boxplot_cols:
+        st.markdown("#### 📦 Boxplot")
+        selected_box = st.selectbox("Select column for boxplot", existing_boxplot_cols)
+        
+        fig2, ax2 = plt.subplots()
+        sns.boxplot(x=df[selected_box], ax=ax2, color="lightgreen")
+        ax2.set_title(f"Boxplot of {selected_box}")
+        st.pyplot(fig2)
+    else:
+        st.info("No available numeric columns for boxplot.")
 
     # Correlation Matrix
     st.markdown("#### 🔗 Correlation Matrix")

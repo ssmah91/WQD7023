@@ -19,6 +19,14 @@ warnings.filterwarnings(
 
 user_info = st.experimental_user
 
+# Safely access email or fallback
+if user_info and "email" in user_info:
+    st.write(f"Hello, {user_info['email']} 👋")
+elif user_info and "name" in user_info:
+    st.write(f"Hello, {user_info['name']} 👋")
+else:
+    st.write("Hello, Guest 👋")
+    
 st.set_page_config(
     page_title="Diabetes Mellitus Prediction",
     page_icon="🩺",

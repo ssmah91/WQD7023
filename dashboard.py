@@ -77,7 +77,7 @@ if page == "Home":
 elif page == "Data Info":
     st.title("📊 Data Information & Exploration")
 
-    # --- STEP 1: Load and Limit to Relevant Columns ---
+    # Load and filter relevant columns
     model_columns = [
         'GeneralHealth', 'AgeCategory', 'HighBloodPressure', 'BMI',
         'Highcholesterol', 'AlcoholDrinkers', 'Gender', 'RaceEthnicityCategory',
@@ -86,7 +86,17 @@ elif page == "Data Info":
     df = pd.read_csv("df_final.csv")
     df = df[model_columns]
 
-    # --- STEP 2: Mapping Dictionary ---
+    # Map BMI into categories (Normal, Overweight, Obese)
+    def categorize_bmi(bmi):
+        if bmi < 25:
+            return 'Normal'
+        elif bmi < 30:
+            return 'Overweight'
+        else:
+            return 'Obese'
+    df['BMI'] = df['BMI'].apply(categorize_bmi)
+
+    # Mapping for all other categorical values
     mappings = {
         'GeneralHealth': {1: 'Poor', 2: 'Fair', 3: 'Good', 4: 'Very Good', 5: 'Excellent'},
         'HighBloodPressure': {0: 'No', 1: 'Yes'},
@@ -107,7 +117,7 @@ elif page == "Data Info":
         if col in df_display.columns:
             df_display[col] = df_display[col].map(mapping)
 
-    # --- STEP 3: Distribution Visualizer ---
+    # === DISTRIBUTION VISUALIZER ===
     st.subheader("📊 Distribution Visualizer")
 
     selected_col = st.selectbox("Select a feature to visualize:", df_display.columns)
@@ -148,6 +158,23 @@ elif page == "Data Info":
         for i, (count, pct) in enumerate(zip(plot_df['Count'], plot_df['Percentage'])):
             ax.text(count + 1, i, f"{count} ({pct:.1f}%)", va='center')
         st.pyplot(fig)
+
+    # === DESCRIPTIVE SUMMARY ===
+    st.subheader("📘 Descriptive Summary")
+    view_mode = st.radio("Choose a view:", ['View Summary', 'View Column Names', 'View Unique Values'])
+
+    if view_mode == 'View Summary':
+        st.write(df.describe(include='all'))
+
+    elif view_mode == 'View Column Names':
+        st.write(df.columns.tolist())
+
+    elif view_mode == 'View Unique Values':
+        for col in df.columns:
+            unique_vals = df[col].dropna().unique()
+            st.markdown(f"**{col}** ({len(unique_vals)} unique): {unique_vals[:20]}")
+            if len(unique_vals) > 20:
+                st.caption("🔎 Showing only first 20 unique values")
 
     # --- STEP 4: Summary View ---
     st.subheader("📘 Descriptive Summary")

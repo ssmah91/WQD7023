@@ -104,7 +104,7 @@ elif page == "Data Info":
     
     # Distribution Plot
     st.markdown("#### 📌 Distribution Plot")
-    selected_dist = st.selectbox("Select column for distribution plot", df_model.columns)
+    selected_dist = st.selectbox("Select column for distribution plot", df.columns)
     
     if selected_dist == 'AgeCategory':
         age_bins = [0, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69, 74, 79, 150]

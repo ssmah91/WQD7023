@@ -88,9 +88,9 @@ elif page == "Data Info":
 
     # Map BMI into categories (Normal, Overweight, Obese)
     def categorize_bmi(bmi):
-        if bmi < 25:
+        if bmi == 1:
             return 'Normal'
-        elif bmi < 30:
+        elif bmi == 2:
             return 'Overweight'
         else:
             return 'Obese'

@@ -98,7 +98,9 @@ elif page == "Data Info":
     
     # Distribution
     st.markdown("#### 📌 Distribution Plot")
-    num_cols = df.select_dtypes(include='float').columns
+    mapped_columns = list(map_dict.keys())
+    num_cols = df.select_dtypes(include='number').drop(columns=mapped_columns, errors='ignore').columns
+    
     selected_dist = st.selectbox("Select column for distribution plot", num_cols)
     fig1, ax1 = plt.subplots()
     sns.histplot(df[selected_dist], bins=30, kde=True, ax=ax1, color="skyblue")

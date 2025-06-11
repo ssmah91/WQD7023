@@ -77,62 +77,50 @@ if page == "Home":
 elif page == "Data Info":
     st.title("📊 Data Information & Exploration")
 
-    # Load only model-relevant columns
+    # --- STEP 1: Load and Limit to Relevant Columns ---
     model_columns = [
         'GeneralHealth', 'AgeCategory', 'HighBloodPressure', 'BMI',
         'Highcholesterol', 'AlcoholDrinkers', 'Gender', 'RaceEthnicityCategory',
         'PhysicalActivities', 'DifficultyWalking', 'HouseholdIncome', 'HadDiabetes'
     ]
-    df = pd.read_csv("df_final.csv")[model_columns]
+    df = pd.read_csv("df_final.csv")
+    df = df[model_columns]
 
-    # Human-readable mappings
+    # --- STEP 2: Mapping Dictionary ---
     mappings = {
         'GeneralHealth': {1: 'Poor', 2: 'Fair', 3: 'Good', 4: 'Very Good', 5: 'Excellent'},
         'HighBloodPressure': {0: 'No', 1: 'Yes'},
         'Highcholesterol': {0: 'No', 1: 'Yes'},
         'AlcoholDrinkers': {0: 'No', 1: 'Yes'},
         'Gender': {0: 'Female', 1: 'Male'},
-        'RaceEthnicityCategory': {0: 'Non-Hispanic', 1: 'Hispanic'},
         'PhysicalActivities': {0: 'No', 1: 'Yes'},
         'DifficultyWalking': {0: 'No', 1: 'Yes'},
         'HouseholdIncome': {
             1: '<25k', 2: '25k-50k', 3: '50k-75k', 4: '75k-100k', 5: '100k+'
         },
-        'HadDiabetes': {0: 'No', 1: 'Yes'}
+        'HadDiabetes': {0: 'No', 1: 'Yes'},
+        'RaceEthnicityCategory': {0: 'Non-Hispanic', 1: 'Hispanic'}
     }
 
     df_display = df.copy()
-    for col, map_dict in mappings.items():
-        df_display[col] = df_display[col].map(map_dict)
+    for col, mapping in mappings.items():
+        if col in df_display.columns:
+            df_display[col] = df_display[col].map(mapping)
 
-    # SECTION 1 — Pygwalker
-    st.subheader("🚀 Interactive Dashboard")
-    with st.expander("Click to launch full data explorer", expanded=True):
-        @st.cache_resource
-        def get_pyg_renderer():
-            return StreamlitRenderer(df_display, spec="./chart_meta_0.json", kernel_computation=True)
-        renderer = get_pyg_renderer()
-        renderer.explorer()
-
-    # SECTION 2 — Visuals
+    # --- STEP 3: Distribution Visualizer ---
     st.subheader("📊 Distribution Visualizer")
-    
-    # Select feature
-    selected_col = st.selectbox("Select a feature to visualize:", df.columns)
-    
-    # Select chart type
+
+    selected_col = st.selectbox("Select a feature to visualize:", df_display.columns)
     chart_type = st.radio("Choose chart type:", ['Bar Chart', 'Pie Chart', 'Horizontal Bar'])
-    
-    # Prepare data
-    value_counts = df[selected_col].value_counts(dropna=False)
-    percent = (value_counts / len(df)) * 100
+
+    value_counts = df_display[selected_col].value_counts(dropna=False)
+    percent = (value_counts / len(df_display)) * 100
     plot_df = pd.DataFrame({
         'Category': value_counts.index.astype(str),
         'Count': value_counts.values,
         'Percentage': percent.round(2)
     })
-    
-    # Visualize
+
     if chart_type == 'Bar Chart':
         fig, ax = plt.subplots()
         bars = ax.bar(plot_df['Category'], plot_df['Count'], color='skyblue')
@@ -144,13 +132,14 @@ elif page == "Data Info":
             ax.text(bar.get_x() + bar.get_width()/2, bar.get_height(), f"{int(bar.get_height())} ({pct:.1f}%)", 
                     ha='center', va='bottom')
         st.pyplot(fig)
-    
+
     elif chart_type == 'Pie Chart':
         fig, ax = plt.subplots()
-        wedges, texts, autotexts = ax.pie(plot_df['Count'], labels=plot_df['Category'], autopct='%1.1f%%', startangle=90)
+        wedges, texts, autotexts = ax.pie(
+            plot_df['Count'], labels=plot_df['Category'], autopct='%1.1f%%', startangle=90)
         ax.set_title(f"Pie Chart of {selected_col}")
         st.pyplot(fig)
-    
+
     elif chart_type == 'Horizontal Bar':
         fig, ax = plt.subplots()
         bars = ax.barh(plot_df['Category'], plot_df['Count'], color='skyblue')
@@ -159,6 +148,24 @@ elif page == "Data Info":
         for i, (count, pct) in enumerate(zip(plot_df['Count'], plot_df['Percentage'])):
             ax.text(count + 1, i, f"{count} ({pct:.1f}%)", va='center')
         st.pyplot(fig)
+
+    # --- STEP 4: Summary View ---
+    st.subheader("📘 Descriptive Summary")
+    view_mode = st.radio("Choose a view:", ['View Summary', 'View Column Names', 'View Unique Values'])
+
+    if view_mode == 'View Summary':
+        st.write(df.describe(include='all'))
+
+    elif view_mode == 'View Column Names':
+        st.write(df.columns.tolist())
+
+    elif view_mode == 'View Unique Values':
+        for col in df.columns:
+            unique_vals = df[col].dropna().unique()
+            st.markdown(f"**{col}** ({len(unique_vals)} unique): {unique_vals[:20]}")
+            if len(unique_vals) > 20:
+                st.caption("🔎 Showing only first 20 unique values")
+
 
     # SECTION 3 — Descriptive Summary
     st.subheader("📘 Descriptive Summary")

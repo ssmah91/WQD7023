@@ -115,82 +115,50 @@ elif page == "Data Info":
         renderer.explorer()
 
     # SECTION 2 — Visuals
-    st.subheader("📈 Key Visual Summaries")
-
-    # Distribution Plot
-    st.markdown("#### 📌 Distribution Plot")
-    selected_dist = st.selectbox("Select column for distribution", df.columns)
-
-    fig1, ax1 = plt.subplots()
-    col_data = df[selected_dist].dropna()
-
-    if selected_dist == "AgeCategory":
-        age_bins = [0, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69, 74, 79, 150]
-        age_labels = ['<25', '25-29', '30-34', '35-39', '40-44', '45-49',
-                      '50-54', '55-59', '60-64', '65-69', '70-74', '75-79', '80+']
-        age_grouped = pd.cut(col_data, bins=age_bins, labels=age_labels, right=True)
-        counts = age_grouped.value_counts().sort_index()
-        bars = ax1.bar(counts.index.astype(str), counts.values, color="skyblue")
-        
-        ax1.set_title("Age Group Distribution")
-        ax1.set_xlabel("Age Group")
-        ax1.set_ylabel("Count")
-        
-        # Rotate x-axis labels
-        ax1.set_xticklabels(counts.index.astype(str), rotation=45, ha='right', fontsize=9)
-        
-        # Add value labels on bars
-        for bar in bars:
-            yval = bar.get_height()
-            ax1.text(bar.get_x() + bar.get_width()/2.0, yval + 1, int(yval), ha='center', va='bottom', fontsize=8)
-        
-        fig1.tight_layout()
-
-    elif selected_dist in mappings:
-        counts = df_display[selected_dist].value_counts()
-        bars = ax1.bar(counts.index, counts.values, color="skyblue")
-        ax1.set_title(f"{selected_dist} Distribution")
-        ax1.set_xlabel(selected_dist)
-        ax1.set_ylabel("Count")
-        for bar in bars:
-            yval = bar.get_height()
-            ax1.text(bar.get_x() + bar.get_width()/2.0, yval + 1, int(yval), ha='center', va='bottom')
-    else:
-        sns.histplot(col_data, bins=30, kde=True, ax=ax1, color="skyblue")
-        ax1.set_title(f"Distribution of {selected_dist}")
-        ax1.set_xlabel(selected_dist)
-        ax1.set_ylabel("Density")
-
-    st.pyplot(fig1)
-
-    # Boxplot
-    st.markdown("#### 📦 Boxplot")
-    # Only plot boxplot for columns that exist
-    boxplot_candidates = ['AgeCategory']
-    existing_boxplot_cols = [col for col in boxplot_candidates if col in df.columns]
+    st.subheader("📊 Distribution Visualizer")
     
-    # Boxplot Section – Only for AgeCategory
-    st.markdown("#### 📦 Boxplot")
-    if 'AgeCategory' in df.columns:
-        fig2, ax2 = plt.subplots()
-        sns.boxplot(x=df['AgeCategory'], ax=ax2, color="lightgreen")
-        ax2.set_title("Boxplot of AgeCategory")
-        ax2.set_xlabel("Age (in years)")
-        st.pyplot(fig2)
-    else:
-        st.warning("⚠️ 'AgeCategory' column not found in dataset.")
-
-
-    # Correlation Matrix
-    st.markdown("#### 🔗 Correlation Matrix")
-    numeric_df = df.select_dtypes(include='number')
-    if not numeric_df.empty:
-        fig3, ax3 = plt.subplots(figsize=(10, 6))
-        sns.heatmap(numeric_df.corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax3)
-        ax3.set_title("Correlation Matrix")
-        st.pyplot(fig3)
-    else:
-        st.info("No numeric columns available for correlation.")
+    # Select feature
+    selected_col = st.selectbox("Select a feature to visualize:", df.columns)
+    
+    # Select chart type
+    chart_type = st.radio("Choose chart type:", ['Bar Chart', 'Pie Chart', 'Horizontal Bar'])
+    
+    # Prepare data
+    value_counts = df[selected_col].value_counts(dropna=False)
+    percent = (value_counts / len(df)) * 100
+    plot_df = pd.DataFrame({
+        'Category': value_counts.index.astype(str),
+        'Count': value_counts.values,
+        'Percentage': percent.round(2)
+    })
+    
+    # Visualize
+    if chart_type == 'Bar Chart':
+        fig, ax = plt.subplots()
+        bars = ax.bar(plot_df['Category'], plot_df['Count'], color='skyblue')
+        ax.set_title(f"Distribution of {selected_col}")
+        ax.set_ylabel("Count")
+        ax.set_xlabel("Category")
+        ax.tick_params(axis='x', rotation=45)
+        for bar, pct in zip(bars, plot_df['Percentage']):
+            ax.text(bar.get_x() + bar.get_width()/2, bar.get_height(), f"{int(bar.get_height())} ({pct:.1f}%)", 
+                    ha='center', va='bottom')
+        st.pyplot(fig)
+    
+    elif chart_type == 'Pie Chart':
+        fig, ax = plt.subplots()
+        wedges, texts, autotexts = ax.pie(plot_df['Count'], labels=plot_df['Category'], autopct='%1.1f%%', startangle=90)
+        ax.set_title(f"Pie Chart of {selected_col}")
+        st.pyplot(fig)
+    
+    elif chart_type == 'Horizontal Bar':
+        fig, ax = plt.subplots()
+        bars = ax.barh(plot_df['Category'], plot_df['Count'], color='skyblue')
+        ax.set_title(f"Distribution of {selected_col}")
+        ax.set_xlabel("Count")
+        for i, (count, pct) in enumerate(zip(plot_df['Count'], plot_df['Percentage'])):
+            ax.text(count + 1, i, f"{count} ({pct:.1f}%)", va='center')
+        st.pyplot(fig)
 
     # SECTION 3 — Descriptive Summary
     st.subheader("📘 Descriptive Summary")

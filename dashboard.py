@@ -261,8 +261,9 @@ elif page == "About Project":
 
     st.subheader("🎯 Research Overview")
     st.markdown("""
-    This project, titled **"Predictive Modeling for Detection of Diabetes Mellitus: A Study on Risk Factors and Machine Learning Approaches,"**
-    applies machine learning methods to identify individuals at risk for diabetes using health and lifestyle data from the BRFSS 2023 dataset.
+    This work, titled **"Predictive Modeling for Detection of Diabetes Mellitus: A Study on Risk Factors and Machine Learning Approaches,"**
+    is part of my Master of Data Science research project at University of Malaya under the supervision of Dr. Nazean.
+    It applies machine learning methods to identify individuals at risk for diabetes using health and lifestyle data from the BRFSS 2023 dataset.
 
     The model was built using Gradient Boosting and optimized with SVMSMOTE to address class imbalance.
     The app aims to support early identification and awareness.
@@ -285,8 +286,7 @@ elif page == "About Project":
 
     st.subheader("🙌 Acknowledgements")
     st.markdown("""
-    - Supervisor: Dr. [Your Name]
-    - Dataset: [CDC BRFSS 2023](https://www.cdc.gov/brfss/)
-    - Tools: Streamlit, scikit-learn, Pygwalker
+    - Supervisor: Dr. Nazean Binti Jomhari
+    - Course: WQD7023
     """)
 

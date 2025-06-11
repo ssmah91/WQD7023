@@ -74,122 +74,101 @@ if page == "Home":
         unsafe_allow_html=True
     )
 
-elif page == "Data Info":
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    from pygwalker.api.streamlit import StreamlitRenderer
-
+  elif page == "Data Info":
+      
+    # 🧭 Sidebar Navigation (used outside if needed)
     st.title("📊 Data Information & Exploration")
-
-    # ✅ Step 1: Define 11 features + 1 target
-    model_columns = [
-        'GeneralHealth', 'AgeCategory', 'HighBloodPressure', 'BMI',
-        'Highcholesterol', 'AlcoholDrinkers', 'Gender', 'RaceEthnicityCategory',
-        'PhysicalActivities', 'DifficultyWalking', 'HouseholdIncome', 'HadDiabetes'
-    ]
-
-    # ✅ Step 2: Load dataset and subset
-    df = pd.read_csv("df_final.csv")
-    df_model = df[model_columns].copy()
-
-    # ✅ Step 3: Apply human-readable mappings
-    mappings = {
-        'GeneralHealth': {1: 'Poor', 2: 'Fair', 3: 'Good', 4: 'Very Good', 5: 'Excellent'},
-        'AgeCategory': {
-            1: '18-24', 2: '25-29', 3: '30-34', 4: '35-39', 5: '40-44', 6: '45-49',
-            7: '50-54', 8: '55-59', 9: '60-64', 10: '65-69', 11: '70-74', 12: '75-79', 13: '80+'
-        },
-        'HighBloodPressure': {0: 'No', 1: 'Yes'},
-        'Highcholesterol': {0: 'No', 1: 'Yes'},
-        'AlcoholDrinkers': {0: 'No', 1: 'Yes'},
-        'Gender': {0: 'Female', 1: 'Male'},
-        'RaceEthnicityCategory': {1: 'White', 2: 'Black', 3: 'Asian', 4: 'Hispanic', 5: 'Other'},
-        'PhysicalActivities': {0: 'No', 1: 'Yes'},
-        'DifficultyWalking': {0: 'No', 1: 'Yes'},
-        'HouseholdIncome': {1: '<25k', 2: '25k-50k', 3: '50k-75k', 4: '75k-100k', 5: '100k+'},
-        'HadDiabetes': {0: 'No', 1: 'Yes'}
-    }
-
-    for col, map_dict in mappings.items():
-        if col in df_model.columns:
-            df_model[col] = df_model[col].map(map_dict)
-
-    # ✅ Section 1: Interactive Dashboard
+    
+    # 📌 Section 1: Interactive Dashboard
     st.subheader("🚀 Interactive Dashboard")
     with st.expander("Click to launch full data explorer", expanded=True):
         @st.cache_resource
-        def get_pyg_renderer():
-            return StreamlitRenderer(df_model, spec="./chart_meta_0.json", kernel_computation=True)
-
+        def get_pyg_renderer() -> "StreamlitRenderer":
+            return StreamlitRenderer(
+                df_model,
+                spec="./chart_meta_0.json",
+                kernel_computation=True
+            )
         renderer = get_pyg_renderer()
         renderer.explorer()
-
-    # ✅ Section 2: Visual Analysis
+    
+    # 📊 Section 2: Visualizations
     st.subheader("📈 Key Visual Summaries")
-
-    # Only numeric columns for visualization
-    numeric_cols = df[model_columns].select_dtypes(include='number').columns.tolist()
-
-    # 📌 Distribution Plot
+    
+    # Distribution Plot
     st.markdown("#### 📌 Distribution Plot")
     selected_dist = st.selectbox("Select column for distribution plot", df_model.columns)
     
-    fig1, ax1 = plt.subplots()
-    col_data = df_model[selected_dist].dropna()
+    if selected_dist == 'AgeCategory':
+        age_bins = [0, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69, 74, 79, 150]
+        age_labels = ['<25', '25-29', '30-34', '35-39', '40-44', '45-49',
+                      '50-54', '55-59', '60-64', '65-69', '70-74', '75-79', '80+']
+        age_grouped = pd.cut(df_model['AgeCategory'], bins=age_bins, labels=age_labels, right=True)
+        counts = age_grouped.value_counts().sort_index()
     
-    if col_data.dtype == 'object' or col_data.nunique() < 10:
-        # Bar plot for categorical or low unique values
-        counts = col_data.value_counts()
-        bars = ax1.bar(counts.index.astype(str), counts.values, color="skyblue")
-        ax1.set_ylabel("Count")
-        ax1.set_xlabel(selected_dist)
-        ax1.set_title(f"Distribution of {selected_dist}")
-    
-        # Add value labels
+        fig, ax = plt.subplots()
+        bars = ax.bar(counts.index.astype(str), counts.values, color="skyblue")
+        ax.set_title("Age Group Distribution")
+        ax.set_ylabel("Count")
+        ax.set_xlabel("Age Group")
         for bar in bars:
             yval = bar.get_height()
-            ax1.text(bar.get_x() + bar.get_width()/2.0, yval + 1, int(yval), ha='center', va='bottom')
-    else:
-        # Histogram for numeric data
-        sns.histplot(col_data, bins=30, kde=True, ax=ax1, color="skyblue")
-        ax1.set_title(f"Distribution of {selected_dist}")
-        ax1.set_ylabel("Density")
-        ax1.set_xlabel(selected_dist)
+            ax.text(bar.get_x() + bar.get_width()/2.0, yval + 1, int(yval), ha='center', va='bottom')
+        st.pyplot(fig)
     
-    st.pyplot(fig1)
-
-
-    # 📦 Boxplot (only for continuous vars)
+    else:
+        col_data = df_model[selected_dist].dropna()
+        fig, ax = plt.subplots()
+        if col_data.dtype == 'object' or col_data.nunique() < 10:
+            counts = col_data.value_counts()
+            bars = ax.bar(counts.index.astype(str), counts.values, color="skyblue")
+            ax.set_ylabel("Count")
+            ax.set_xlabel(selected_dist)
+            ax.set_title(f"Distribution of {selected_dist}")
+            for bar in bars:
+                yval = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width()/2.0, yval + 1, int(yval), ha='center', va='bottom')
+        else:
+            sns.histplot(col_data, bins=30, kde=True, ax=ax, color="skyblue")
+            ax.set_title(f"Distribution of {selected_dist}")
+            ax.set_ylabel("Density")
+            ax.set_xlabel(selected_dist)
+        st.pyplot(fig)
+    
+    # Boxplot
     st.markdown("#### 📦 Boxplot")
-    boxplot_cols = ['BMI', 'AgeCategory', 'HouseholdIncome']  # Adjust if needed
-    selected_box = st.selectbox("Select column for boxplot", boxplot_cols)
+    boxplot_cols = ['BMI', 'AgeCategory', 'HouseholdIncome']
+    selected_box = st.selectbox("Select numeric column for boxplot", boxplot_cols)
+    
     fig2, ax2 = plt.subplots()
-    sns.boxplot(x=df[selected_box], ax=ax2, color="lightgreen")
+    sns.boxplot(x=df_model[selected_box], ax=ax2, color="lightgreen")
     ax2.set_title(f"Boxplot of {selected_box}")
     st.pyplot(fig2)
-
-    # 🔗 Correlation Matrix
+    
+    # Correlation Matrix
     st.markdown("#### 🔗 Correlation Matrix")
-    numeric_df = df[model_columns].select_dtypes(include='number')
-    fig3, ax3 = plt.subplots(figsize=(10, 6))
-    sns.heatmap(numeric_df.corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax3)
-    ax3.set_title("Correlation Matrix")
-    st.pyplot(fig3)
-
-    # ✅ Section 3: Descriptive Summary
+    numeric_corr_df = df.select_dtypes(include='number')
+    if not numeric_corr_df.empty:
+        fig3, ax3 = plt.subplots(figsize=(10, 6))
+        sns.heatmap(numeric_corr_df.corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax3)
+        ax3.set_title("Correlation Matrix")
+        st.pyplot(fig3)
+    else:
+        st.info("No numeric columns available for correlation.")
+    
+    # 📘 Section 3: Descriptive Summary
     st.subheader("📘 Descriptive Summary")
     view_mode = st.radio("Choose a view:", ['View Summary', 'View Column Names', 'View Unique Values'])
-
+    
     if view_mode == 'View Summary':
-        st.write(df_model.describe(include='all'))
-
+        st.write(df.describe(include='all'))
+    
     elif view_mode == 'View Column Names':
-        st.write(df_model.columns.tolist())
-
+        st.write(df.columns.tolist())
+    
     elif view_mode == 'View Unique Values':
-        for col in df_model.columns:
-            unique_vals = df_model[col].dropna().unique()
+        for col in df.columns:
+            unique_vals = df[col].dropna().unique()
             st.markdown(f"**{col}** ({len(unique_vals)} unique): {unique_vals[:20]}")
             if len(unique_vals) > 20:
                 st.caption("🔎 Showing only first 20 unique values")

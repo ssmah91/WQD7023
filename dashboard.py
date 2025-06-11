@@ -175,39 +175,6 @@ elif page == "Data Info":
             st.markdown(f"**{col}** ({len(unique_vals)} unique): {unique_vals[:20]}")
             if len(unique_vals) > 20:
                 st.caption("🔎 Showing only first 20 unique values")
-
-    # --- STEP 4: Summary View ---
-    st.subheader("📘 Descriptive Summary")
-    view_mode = st.radio("Choose a view:", ['View Summary', 'View Column Names', 'View Unique Values'])
-
-    if view_mode == 'View Summary':
-        st.write(df.describe(include='all'))
-
-    elif view_mode == 'View Column Names':
-        st.write(df.columns.tolist())
-
-    elif view_mode == 'View Unique Values':
-        for col in df.columns:
-            unique_vals = df[col].dropna().unique()
-            st.markdown(f"**{col}** ({len(unique_vals)} unique): {unique_vals[:20]}")
-            if len(unique_vals) > 20:
-                st.caption("🔎 Showing only first 20 unique values")
-
-
-    # SECTION 3 — Descriptive Summary
-    st.subheader("📘 Descriptive Summary")
-    view_mode = st.radio("Choose view mode:", ['View Summary', 'View Column Names', 'View Unique Values'])
-
-    if view_mode == 'View Summary':
-        st.dataframe(df.describe(include='all'))
-    elif view_mode == 'View Column Names':
-        st.write(df.columns.tolist())
-    elif view_mode == 'View Unique Values':
-        for col in df.columns:
-            unique_vals = df[col].dropna().unique()
-            st.markdown(f"**{col}** ({len(unique_vals)} unique): {unique_vals[:20]}")
-            if len(unique_vals) > 20:
-                st.caption("Showing only first 20 unique values")
                 
 elif page == "Prediction":
     st.title("🩺 Diabetes Risk Prediction")

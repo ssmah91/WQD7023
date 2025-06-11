@@ -131,12 +131,21 @@ elif page == "Data Info":
         age_grouped = pd.cut(col_data, bins=age_bins, labels=age_labels, right=True)
         counts = age_grouped.value_counts().sort_index()
         bars = ax1.bar(counts.index.astype(str), counts.values, color="skyblue")
+        
         ax1.set_title("Age Group Distribution")
         ax1.set_xlabel("Age Group")
         ax1.set_ylabel("Count")
+        
+        # Rotate x-axis labels
+        ax1.set_xticklabels(counts.index.astype(str), rotation=45, ha='right', fontsize=9)
+        
+        # Add value labels on bars
         for bar in bars:
             yval = bar.get_height()
-            ax1.text(bar.get_x() + bar.get_width()/2.0, yval + 1, int(yval), ha='center', va='bottom')
+            ax1.text(bar.get_x() + bar.get_width()/2.0, yval + 1, int(yval), ha='center', va='bottom', fontsize=8)
+        
+        fig1.tight_layout()
+
     elif selected_dist in mappings:
         counts = df_display[selected_dist].value_counts()
         bars = ax1.bar(counts.index, counts.values, color="skyblue")

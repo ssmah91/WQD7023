@@ -10,7 +10,7 @@ from pygwalker.api.streamlit import StreamlitRenderer
 from sklearn.ensemble import GradientBoostingClassifier
 
 import warnings
-warnings.filterwarnings("ignore", message=".*st.experimental_user.*", category=DeprecationWarning)
+warnings.filterwarnings("ignore")
 
 st.set_page_config(
     page_title="Diabetes Mellitus Prediction",

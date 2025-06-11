@@ -12,31 +12,6 @@ from sklearn.ensemble import GradientBoostingClassifier
 import warnings
 warnings.filterwarnings("ignore")
 
-# Load dataset
-df = pd.read_csv("df_final.csv")
-
-# Limit to model-specific columns (11 input features + 1 target)
-model_columns = [
-    'GeneralHealth', 'AgeCategory', 'HighBloodPressure', 'BMI',
-    'Highcholesterol', 'AlcoholDrinkers', 'Gender', 'RaceEthnicityCategory',
-    'PhysicalActivities', 'DifficultyWalking', 'HouseholdIncome', 'HadDiabetes'
-]
-df = df[model_columns]
-
-# Apply human-readable mappings
-mappings = {
-    'GeneralHealth': {1: 'Poor', 2: 'Fair', 3: 'Good', 4: 'Very Good', 5: 'Excellent'},
-    'HighBloodPressure': {0: 'No', 1: 'Yes'},
-    'Highcholesterol': {0: 'No', 1: 'Yes'},
-    'AlcoholDrinkers': {0: 'No', 1: 'Yes'},
-    'Gender': {0: 'Female', 1: 'Male'},
-    'PhysicalActivities': {0: 'No', 1: 'Yes'},
-    'DifficultyWalking': {0: 'No', 1: 'Yes'},
-    'HouseholdIncome': {1: '<25k', 2: '25k-50k', 3: '50k-75k', 4: '75k-100k', 5: '100k+'},
-    'HadDiabetes': {0: 'No', 1: 'Yes'},
-    'RaceEthnicityCategory': {0: 'Non-Hispanic', 1: 'Hispanic'}
-}
-
 st.set_page_config(
     page_title="Diabetes Mellitus Prediction",
     page_icon="🩺",
@@ -100,99 +75,119 @@ if page == "Home":
     )
 
 elif page == "Data Info":
-      
     st.title("📊 Data Information & Exploration")
-    
-    # Section 1: Interactive Dashboard
+
+    # Load only model-relevant columns
+    model_columns = [
+        'GeneralHealth', 'AgeCategory', 'HighBloodPressure', 'BMI',
+        'Highcholesterol', 'AlcoholDrinkers', 'Gender', 'RaceEthnicityCategory',
+        'PhysicalActivities', 'DifficultyWalking', 'HouseholdIncome', 'HadDiabetes'
+    ]
+    df = pd.read_csv("df_final.csv")[model_columns]
+
+    # Human-readable mappings
+    mappings = {
+        'GeneralHealth': {1: 'Poor', 2: 'Fair', 3: 'Good', 4: 'Very Good', 5: 'Excellent'},
+        'HighBloodPressure': {0: 'No', 1: 'Yes'},
+        'Highcholesterol': {0: 'No', 1: 'Yes'},
+        'AlcoholDrinkers': {0: 'No', 1: 'Yes'},
+        'Gender': {0: 'Female', 1: 'Male'},
+        'RaceEthnicityCategory': {0: 'Non-Hispanic', 1: 'Hispanic'},
+        'PhysicalActivities': {0: 'No', 1: 'Yes'},
+        'DifficultyWalking': {0: 'No', 1: 'Yes'},
+        'HouseholdIncome': {
+            1: '<25k', 2: '25k-50k', 3: '50k-75k', 4: '75k-100k', 5: '100k+'
+        },
+        'HadDiabetes': {0: 'No', 1: 'Yes'}
+    }
+
+    df_display = df.copy()
+    for col, map_dict in mappings.items():
+        df_display[col] = df_display[col].map(map_dict)
+
+    # SECTION 1 — Pygwalker
     st.subheader("🚀 Interactive Dashboard")
     with st.expander("Click to launch full data explorer", expanded=True):
         @st.cache_resource
         def get_pyg_renderer():
-            return StreamlitRenderer(df_model, spec="./chart_meta_0.json", kernel_computation=True)
-
+            return StreamlitRenderer(df_display, spec="./chart_meta_0.json", kernel_computation=True)
         renderer = get_pyg_renderer()
         renderer.explorer()
-    
-    # Section 2: Visualizations
+
+    # SECTION 2 — Visuals
     st.subheader("📈 Key Visual Summaries")
-    
+
     # Distribution Plot
     st.markdown("#### 📌 Distribution Plot")
-    selected_dist = st.selectbox("Select column for distribution plot", df.columns)
-    
-    if selected_dist == 'AgeCategory':
+    selected_dist = st.selectbox("Select column for distribution", df.columns)
+
+    fig1, ax1 = plt.subplots()
+    col_data = df[selected_dist].dropna()
+
+    if selected_dist == "AgeCategory":
         age_bins = [0, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69, 74, 79, 150]
         age_labels = ['<25', '25-29', '30-34', '35-39', '40-44', '45-49',
                       '50-54', '55-59', '60-64', '65-69', '70-74', '75-79', '80+']
-        age_grouped = pd.cut(df['AgeCategory'], bins=age_bins, labels=age_labels, right=True)
+        age_grouped = pd.cut(col_data, bins=age_bins, labels=age_labels, right=True)
         counts = age_grouped.value_counts().sort_index()
-    
-        fig, ax = plt.subplots()
-        bars = ax.bar(counts.index.astype(str), counts.values, color="skyblue")
-        ax.set_title("Age Group Distribution")
-        ax.set_ylabel("Count")
-        ax.set_xlabel("Age Group")
+        bars = ax1.bar(counts.index.astype(str), counts.values, color="skyblue")
+        ax1.set_title("Age Group Distribution")
+        ax1.set_xlabel("Age Group")
+        ax1.set_ylabel("Count")
         for bar in bars:
             yval = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2.0, yval + 1, int(yval), ha='center', va='bottom')
-        st.pyplot(fig)
-    
+            ax1.text(bar.get_x() + bar.get_width()/2.0, yval + 1, int(yval), ha='center', va='bottom')
+    elif selected_dist in mappings:
+        counts = df_display[selected_dist].value_counts()
+        bars = ax1.bar(counts.index, counts.values, color="skyblue")
+        ax1.set_title(f"{selected_dist} Distribution")
+        ax1.set_xlabel(selected_dist)
+        ax1.set_ylabel("Count")
+        for bar in bars:
+            yval = bar.get_height()
+            ax1.text(bar.get_x() + bar.get_width()/2.0, yval + 1, int(yval), ha='center', va='bottom')
     else:
-        col_data = df_model[selected_dist].dropna()
-        fig, ax = plt.subplots()
-        if col_data.dtype == 'object' or col_data.nunique() < 10:
-            counts = col_data.value_counts()
-            bars = ax.bar(counts.index.astype(str), counts.values, color="skyblue")
-            ax.set_ylabel("Count")
-            ax.set_xlabel(selected_dist)
-            ax.set_title(f"Distribution of {selected_dist}")
-            for bar in bars:
-                yval = bar.get_height()
-                ax.text(bar.get_x() + bar.get_width()/2.0, yval + 1, int(yval), ha='center', va='bottom')
-        else:
-            sns.histplot(col_data, bins=30, kde=True, ax=ax, color="skyblue")
-            ax.set_title(f"Distribution of {selected_dist}")
-            ax.set_ylabel("Density")
-            ax.set_xlabel(selected_dist)
-        st.pyplot(fig)
-    
+        sns.histplot(col_data, bins=30, kde=True, ax=ax1, color="skyblue")
+        ax1.set_title(f"Distribution of {selected_dist}")
+        ax1.set_xlabel(selected_dist)
+        ax1.set_ylabel("Density")
+
+    st.pyplot(fig1)
+
     # Boxplot
     st.markdown("#### 📦 Boxplot")
     boxplot_cols = ['BMI', 'AgeCategory', 'HouseholdIncome']
-    selected_box = st.selectbox("Select numeric column for boxplot", boxplot_cols)
-    
+    selected_box = st.selectbox("Select column for boxplot", boxplot_cols)
     fig2, ax2 = plt.subplots()
     sns.boxplot(x=df[selected_box], ax=ax2, color="lightgreen")
     ax2.set_title(f"Boxplot of {selected_box}")
     st.pyplot(fig2)
-    
+
     # Correlation Matrix
     st.markdown("#### 🔗 Correlation Matrix")
-    numeric_corr_df = df.select_dtypes(include='number')
-    if not numeric_corr_df.empty:
+    numeric_df = df.select_dtypes(include='number')
+    if not numeric_df.empty:
         fig3, ax3 = plt.subplots(figsize=(10, 6))
-        sns.heatmap(numeric_corr_df.corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax3)
+        sns.heatmap(numeric_df.corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax3)
         ax3.set_title("Correlation Matrix")
         st.pyplot(fig3)
     else:
         st.info("No numeric columns available for correlation.")
-    
-    # Descriptive Summary
+
+    # SECTION 3 — Descriptive Summary
     st.subheader("📘 Descriptive Summary")
-    view_mode = st.radio("Choose a view:", ['View Summary', 'View Column Names', 'View Unique Values'])
-    
+    view_mode = st.radio("Choose view mode:", ['View Summary', 'View Column Names', 'View Unique Values'])
+
     if view_mode == 'View Summary':
-        st.write(df.describe(include='all'))
-    
+        st.dataframe(df.describe(include='all'))
     elif view_mode == 'View Column Names':
         st.write(df.columns.tolist())
-    
     elif view_mode == 'View Unique Values':
         for col in df.columns:
             unique_vals = df[col].dropna().unique()
             st.markdown(f"**{col}** ({len(unique_vals)} unique): {unique_vals[:20]}")
             if len(unique_vals) > 20:
-                st.caption("🔎 Showing only first 20 unique values")
+                st.caption("Showing only first 20 unique values")
                 
 elif page == "Prediction":
     st.title("🩺 Diabetes Risk Prediction")

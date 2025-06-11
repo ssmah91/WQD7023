@@ -8,7 +8,10 @@ import seaborn as sns
 import pygwalker as pyg
 from pygwalker.api.streamlit import StreamlitRenderer
 from sklearn.ensemble import GradientBoostingClassifier
-    
+
+import warnings
+warnings.filterwarnings("ignore", message=".*st.experimental_user.*", category=DeprecationWarning)
+
 st.set_page_config(
     page_title="Diabetes Mellitus Prediction",
     page_icon="🩺",

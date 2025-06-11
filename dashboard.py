@@ -74,22 +74,26 @@ if page == "Home":
         unsafe_allow_html=True
     )
 
-
 elif page == "Data Info":
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    from pygwalker.api.streamlit import StreamlitRenderer
+
     st.title("📊 Data Information & Exploration")
 
-    # ✅ Define the model-related columns (11 features + 1 target)
+    # ✅ Step 1: Define 11 features + 1 target
     model_columns = [
         'GeneralHealth', 'AgeCategory', 'HighBloodPressure', 'BMI',
         'Highcholesterol', 'AlcoholDrinkers', 'Gender', 'RaceEthnicityCategory',
         'PhysicalActivities', 'DifficultyWalking', 'HouseholdIncome', 'HadDiabetes'
     ]
 
-    # ✅ Load and filter only relevant columns
-    df = pd.read_csv("df_final.csv")  # or wherever your full data is
+    # ✅ Step 2: Load dataset and subset
+    df = pd.read_csv("df_final.csv")
     df_model = df[model_columns].copy()
 
-    # ✅ Apply human-readable mappings
+    # ✅ Step 3: Apply human-readable mappings
     mappings = {
         'GeneralHealth': {1: 'Poor', 2: 'Fair', 3: 'Good', 4: 'Very Good', 5: 'Excellent'},
         'AgeCategory': {
@@ -111,45 +115,48 @@ elif page == "Data Info":
         if col in df_model.columns:
             df_model[col] = df_model[col].map(map_dict)
 
-    # Section 1: Interactive Dashboard
+    # ✅ Section 1: Interactive Dashboard
     st.subheader("🚀 Interactive Dashboard")
     with st.expander("Click to launch full data explorer", expanded=True):
         @st.cache_resource
         def get_pyg_renderer():
             return StreamlitRenderer(df_model, spec="./chart_meta_0.json", kernel_computation=True)
+
         renderer = get_pyg_renderer()
         renderer.explorer()
 
-    # Section 2: Visual Analysis
+    # ✅ Section 2: Visual Analysis
     st.subheader("📈 Key Visual Summaries")
 
-    # Select only numeric columns for plotting
-    num_cols = df.select_dtypes(include='number')[model_columns].columns
+    # Only numeric columns for visualization
+    numeric_cols = df[model_columns].select_dtypes(include='number').columns.tolist()
 
-    # Distribution
+    # 📌 Distribution Plot
     st.markdown("#### 📌 Distribution Plot")
-    selected_dist = st.selectbox("Select column for distribution plot", num_cols)
+    selected_dist = st.selectbox("Select column for distribution plot", numeric_cols)
     fig1, ax1 = plt.subplots()
     sns.histplot(df[selected_dist], bins=30, kde=True, ax=ax1, color="skyblue")
     ax1.set_title(f"Distribution of {selected_dist}")
     st.pyplot(fig1)
 
-    # Boxplot
+    # 📦 Boxplot (only for continuous vars)
     st.markdown("#### 📦 Boxplot")
-    selected_box = st.selectbox("Select column for boxplot", num_cols, key='box')
+    boxplot_cols = ['BMI', 'AgeCategory', 'HouseholdIncome']  # Adjust if needed
+    selected_box = st.selectbox("Select column for boxplot", boxplot_cols)
     fig2, ax2 = plt.subplots()
     sns.boxplot(x=df[selected_box], ax=ax2, color="lightgreen")
     ax2.set_title(f"Boxplot of {selected_box}")
     st.pyplot(fig2)
 
-    # Correlation Matrix
+    # 🔗 Correlation Matrix
     st.markdown("#### 🔗 Correlation Matrix")
+    numeric_df = df[model_columns].select_dtypes(include='number')
     fig3, ax3 = plt.subplots(figsize=(10, 6))
-    sns.heatmap(df[num_cols].corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax3)
+    sns.heatmap(numeric_df.corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax3)
     ax3.set_title("Correlation Matrix")
     st.pyplot(fig3)
 
-    # Section 3: Descriptive Summary
+    # ✅ Section 3: Descriptive Summary
     st.subheader("📘 Descriptive Summary")
     view_mode = st.radio("Choose a view:", ['View Summary', 'View Column Names', 'View Unique Values'])
 

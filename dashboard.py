@@ -74,106 +74,55 @@ if page == "Home":
         unsafe_allow_html=True
     )
 
-# elif page == "Data Info":
-#     import pandas as pd
-
-#     st.title("📊 Data Info Page")
-#     df = pd.read_csv(path + "df_final.csv")
-
-#     # Expander for Sample Data
-#     with st.expander("🔍 Click to View Sample Data (Top 10 Rows)", expanded=False):
-#         st.dataframe(df.head(10))
-
-#     st.subheader("Columns Descriptions:")
-
-#     option = st.radio(
-#         "Select what you want to explore",
-#         ('View Summary', 'View Column Names', 'View Unique Values')
-#     )
-
-#     if option == 'View Summary':
-#         st.write("### Dataset Summary:")
-#         st.write(df.describe(include='all'))
-
-#     elif option == 'View Column Names':
-#         st.write("### Column Names:")
-#         st.write(df.columns.tolist())
-
-#     elif option == 'View Unique Values':
-#         st.write("### Unique Values per Column:")
-#         with st.expander("📋 Click to Expand Column-wise Unique Values", expanded=False):
-#             for col in df.columns:
-#                 unique_vals = df[col].dropna().unique()
-#                 st.write(f"**{col}** ({len(unique_vals)} unique): {unique_vals[:20]}")
-#                 if len(unique_vals) > 20:
-#                     st.caption("🔎 Only showing first 20 unique values.")
-
-# Visualization page
-
 elif page == "Data Info":
-    # Set page config
-    # st.title("📊 Interactive Chart Builder")
 
-    # Load dataset
-    df = pd.read_csv("df_final.csv")  # Replace with your actual path
+    st.title("📊 Data Information & Exploration")
 
-    # Mapping dictionaries
-    binary_map = {0: 'No', 1: 'Yes'}
-    gender_map = {0: 'Female', 1: 'Male'}
-    general_health_map = {1: 'Poor', 2: 'Fair', 3: 'Good', 4: 'Very Good', 5: 'Excellent'}
-    age_map = {
-        1: '18-24', 2: '25-29', 3: '30-34', 4: '35-39', 5: '40-44', 6: '45-49',
-        7: '50-54', 8: '55-59', 9: '60-64', 10: '65-69', 11: '70-74', 12: '75-79', 13: '80+'
-    }
-    race_map = {1: 'White', 2: 'Black', 3: 'Asian', 4: 'Hispanic', 5: 'Other'}
-    income_map = {1: '<25k', 2: '25k-50k', 3: '50k-75k', 4: '75k-100k', 5: '100k+'}
+    ### Part 1: Interactive Dashboard ###
+    with st.expander("🚀 Interactive Dashboard (Pygwalker)", expanded=True):
+        df = pd.read_csv("df_final.csv")  # Load your data
 
-    # Apply human-readable labels
-    human_readable_columns = {
-        'Gender': gender_map,
-        'GeneralHealth': general_health_map,
-        'AgeCategory': age_map,
-        'RaceEthnicityCategory': race_map,
-        'HouseholdIncome': income_map,
-        'HighBloodPressure': binary_map,
-        'Highcholesterol': binary_map,
-        'AlcoholDrinkers': binary_map,
-        'PhysicalActivities': binary_map,
-        'DifficultyWalking': binary_map,
-        'HadHeartAttack': binary_map,
-        'HadDiabetes': binary_map,
-        'HadHeartDisease': binary_map,
-        'HadStroke': binary_map,
-        'HadAsthma': binary_map,
-        'HadSkinCancer': binary_map,
-        'HadCOPD': binary_map,
-        'HadDepressiveDisorder': binary_map,
-        'HadKidneyDisease': binary_map,
-        'HadArthritis': binary_map,
-        'SmokerStatus': binary_map,
-        'ECigaretteUsage': binary_map,
-        'HadOtherCancer': binary_map,
-        'HadInsurance': binary_map,
-    }
+        # Map columns to human-readable names as before
+        # ...
 
-    df_display = df.copy()
-    for col, mapping in human_readable_columns.items():
-        if col in df_display.columns:
-            df_display[col] = df_display[col].map(mapping)
+        # Pygwalker Renderer
+        @st.cache_resource
+        def get_pyg_renderer() -> "StreamlitRenderer":
+            return StreamlitRenderer(
+                df,
+                spec="./chart_meta_0.json",  # optional
+                kernel_computation=True
+            )
 
-    # Run embedded Pygwalker with DuckDB backend
-    @st.cache_resource
+        renderer = get_pyg_renderer()
+        renderer.explorer()
 
-    def get_pyg_renderer() -> "StreamlitRenderer":
-        return StreamlitRenderer(
-        df_display,
-        spec="./chart_meta_0.json",     # Save chart state here manually in UI
-        kernel_computation=True         # DuckDB backend for performance
-    )
+    ### Part 2: Structured Data Summary ###
+    with st.expander("📘 Descriptive Summary & Metadata", expanded=False):
+        st.subheader("📌 Sample Data")
+        st.dataframe(df.head(10))
 
-    renderer = get_pyg_renderer()
-    
-    renderer.explorer()
+        st.subheader("🔍 Column Descriptions")
+        option = st.radio(
+            "Select view mode:",
+            ['View Summary', 'View Column Names', 'View Unique Values']
+        )
+
+        if option == 'View Summary':
+            st.write("### Dataset Summary:")
+            st.write(df.describe(include='all'))
+
+        elif option == 'View Column Names':
+            st.write("### Column Names:")
+            st.write(df.columns.tolist())
+
+        elif option == 'View Unique Values':
+            st.write("### Unique Values per Column:")
+            for col in df.columns:
+                unique_vals = df[col].dropna().unique()
+                st.markdown(f"**{col}** ({len(unique_vals)} unique): {unique_vals[:20]}")
+                if len(unique_vals) > 20:
+                    st.caption("🔎 Only showing first 20 unique values.")
 
 elif page == "Prediction":
     st.title("🩺 Diabetes Risk Prediction")

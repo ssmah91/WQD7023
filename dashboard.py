@@ -12,9 +12,6 @@ from sklearn.ensemble import GradientBoostingClassifier
 import warnings
 warnings.filterwarnings("ignore", message=".*st.experimental_user.*", category=DeprecationWarning)
 
-# Define folder path
-path = r"\\"
-
 st.set_page_config(
     page_title="Diabetes Mellitus Prediction",
     page_icon="🩺",
@@ -118,7 +115,7 @@ elif page == "Data Info":
     # st.title("📊 Interactive Chart Builder")
 
     # Load dataset
-    df = pd.read_csv(path + "df_final.csv")  # Replace with your actual path
+    df = pd.read_csv("df_final.csv")  # Replace with your actual path
 
     # Mapping dictionaries
     binary_map = {0: 'No', 1: 'Yes'}

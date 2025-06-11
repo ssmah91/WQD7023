@@ -13,7 +13,7 @@ import warnings
 warnings.filterwarnings("ignore", message=".*st.experimental_user.*", category=DeprecationWarning)
 
 # Define folder path
-path = r"C:\Users\MYMAHSEA\Downloads\P2\\"
+path = r"\\"
 
 st.set_page_config(
     page_title="Diabetes Mellitus Prediction",

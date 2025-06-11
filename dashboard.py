@@ -12,6 +12,8 @@ from sklearn.ensemble import GradientBoostingClassifier
 import warnings
 warnings.filterwarnings("ignore")
 
+df = pd.read_csv("df_final.csv")
+
 st.set_page_config(
     page_title="Diabetes Mellitus Prediction",
     page_icon="🩺",
@@ -93,13 +95,13 @@ elif page == "Data Info":
     
     # Distribution Plot
     st.markdown("#### 📌 Distribution Plot")
-    selected_dist = st.selectbox("Select column for distribution plot", df_model.columns)
+    selected_dist = st.selectbox("Select column for distribution plot", df.columns)
     
     if selected_dist == 'AgeCategory':
         age_bins = [0, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69, 74, 79, 150]
         age_labels = ['<25', '25-29', '30-34', '35-39', '40-44', '45-49',
                       '50-54', '55-59', '60-64', '65-69', '70-74', '75-79', '80+']
-        age_grouped = pd.cut(df_model['AgeCategory'], bins=age_bins, labels=age_labels, right=True)
+        age_grouped = pd.cut(df['AgeCategory'], bins=age_bins, labels=age_labels, right=True)
         counts = age_grouped.value_counts().sort_index()
     
         fig, ax = plt.subplots()
@@ -113,7 +115,7 @@ elif page == "Data Info":
         st.pyplot(fig)
     
     else:
-        col_data = df_model[selected_dist].dropna()
+        col_data = df[selected_dist].dropna()
         fig, ax = plt.subplots()
         if col_data.dtype == 'object' or col_data.nunique() < 10:
             counts = col_data.value_counts()

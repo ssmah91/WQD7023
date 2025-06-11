@@ -16,6 +16,9 @@ warnings.filterwarnings(
     category=DeprecationWarning
 )
 
+user_info = st.experimental_user
+st.write("Hello,", user_info["email"])
+
 st.set_page_config(
     page_title="Diabetes Mellitus Prediction",
     page_icon="🩺",

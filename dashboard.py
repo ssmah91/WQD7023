@@ -87,24 +87,27 @@ if page == "Home":
 
 elif page == "Data Info":
       
-    # 🧭 Sidebar Navigation (used outside if needed)
     st.title("📊 Data Information & Exploration")
     
-    # 📌 Section 1: Interactive Dashboard
+    # Section 1: Interactive Dashboard
     st.subheader("🚀 Interactive Dashboard")
     with st.expander("Click to launch full data explorer", expanded=True):
         @st.cache_resource
-        def get_pyg_renderer():
-            return StreamlitRenderer(df_model, spec="./chart_meta_0.json", kernel_computation=True)
+        def get_pyg_renderer() -> "StreamlitRenderer":
+            return StreamlitRenderer(
+                df_model,
+                spec="./chart_meta_0.json",
+                kernel_computation=True
+            )
         renderer = get_pyg_renderer()
         renderer.explorer()
     
-    # 📊 Section 2: Visualizations
+    # Section 2: Visualizations
     st.subheader("📈 Key Visual Summaries")
     
     # Distribution Plot
     st.markdown("#### 📌 Distribution Plot")
-    selected_dist = st.selectbox("Select column for distribution plot", df.columns)
+    selected_dist = st.selectbox("Select column for distribution plot", df_model.columns)
     
     if selected_dist == 'AgeCategory':
         age_bins = [0, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69, 74, 79, 150]
@@ -124,7 +127,7 @@ elif page == "Data Info":
         st.pyplot(fig)
     
     else:
-        col_data = df[selected_dist].dropna()
+        col_data = df_model[selected_dist].dropna()
         fig, ax = plt.subplots()
         if col_data.dtype == 'object' or col_data.nunique() < 10:
             counts = col_data.value_counts()
@@ -148,7 +151,7 @@ elif page == "Data Info":
     selected_box = st.selectbox("Select numeric column for boxplot", boxplot_cols)
     
     fig2, ax2 = plt.subplots()
-    sns.boxplot(x=df_model[selected_box], ax=ax2, color="lightgreen")
+    sns.boxplot(x=df[selected_box], ax=ax2, color="lightgreen")
     ax2.set_title(f"Boxplot of {selected_box}")
     st.pyplot(fig2)
     
@@ -163,7 +166,7 @@ elif page == "Data Info":
     else:
         st.info("No numeric columns available for correlation.")
     
-    # 📘 Section 3: Descriptive Summary
+    # Descriptive Summary
     st.subheader("📘 Descriptive Summary")
     view_mode = st.radio("Choose a view:", ['View Summary', 'View Column Names', 'View Unique Values'])
     

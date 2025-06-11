@@ -281,6 +281,7 @@ elif page == "About Project":
     st.subheader("📽️ Research Slides")
     st.markdown("""
     👉 [View Full Slides](https://your-link.com)
+    """)
 
     st.subheader("🙌 Acknowledgements")
     st.markdown("""

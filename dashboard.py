@@ -10,6 +10,7 @@ from pygwalker.api.streamlit import StreamlitRenderer
 from sklearn.ensemble import GradientBoostingClassifier
 
 import warnings
+# Suppress deprecation warning
 warnings.filterwarnings(
     "ignore",
     message=".*st.experimental_user.*",
@@ -17,7 +18,6 @@ warnings.filterwarnings(
 )
 
 user_info = st.experimental_user
-st.write("Hello,", user_info["email"])
 
 st.set_page_config(
     page_title="Diabetes Mellitus Prediction",

@@ -166,19 +166,20 @@ elif page == "Data Info":
     # Boxplot
     st.markdown("#### 📦 Boxplot")
     # Only plot boxplot for columns that exist
-    boxplot_candidates = ['PhysicalHealthDays', 'MentalHealthDays', 'AgeCategory']
+    boxplot_candidates = ['AgeCategory']
     existing_boxplot_cols = [col for col in boxplot_candidates if col in df.columns]
     
-    if existing_boxplot_cols:
-        st.markdown("#### 📦 Boxplot")
-        selected_box = st.selectbox("Select column for boxplot", existing_boxplot_cols)
-        
+    # Boxplot Section – Only for AgeCategory
+    st.markdown("#### 📦 Boxplot")
+    if 'AgeCategory' in df.columns:
         fig2, ax2 = plt.subplots()
-        sns.boxplot(x=df[selected_box], ax=ax2, color="lightgreen")
-        ax2.set_title(f"Boxplot of {selected_box}")
+        sns.boxplot(x=df['AgeCategory'], ax=ax2, color="lightgreen")
+        ax2.set_title("Boxplot of AgeCategory")
+        ax2.set_xlabel("Age (in years)")
         st.pyplot(fig2)
     else:
-        st.info("No available numeric columns for boxplot.")
+        st.warning("⚠️ 'AgeCategory' column not found in dataset.")
+
 
     # Correlation Matrix
     st.markdown("#### 🔗 Correlation Matrix")

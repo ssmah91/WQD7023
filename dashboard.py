@@ -236,34 +236,9 @@ elif page == "Prediction":
             return 'Overweight'
         else:
             return 'Obese'
-
-    # Instructions
-    st.markdown("### 📄 CSV Format Information")
-    with st.expander("ℹ️ Click to view expected CSV structure and input format"):
-        st.markdown("""
-        The uploaded CSV must include the following columns **with valid values**:
-
-        - `GeneralHealth` → Excellent, Very Good, Good, Fair, Poor  
-        - `Age` → Numeric age (e.g., 30)  
-        - `HighBloodPressure` → Yes, No  
-        - `BMI` → Numeric (e.g., 27.5)  
-        - `Highcholesterol` → Yes, No  
-        - `AlcoholDrinkers` → Yes, No  
-        - `Gender` → Male, Female  
-        - `RaceEthnicityCategory` → Hispanic, White, Black, Asian, Other  
-        - `PhysicalActivities` → Yes, No  
-        - `DifficultyWalking` → Yes, No  
-        - `HouseholdIncome` → Numeric income (e.g., 52000)
-
-        ✅ Sample Row:
-        ```
-        Excellent,30,Yes,28.5,Yes,No,Female,White,Yes,No,52000
-        ```
-        ❗ Ensure column names match **exactly**.
-        """)
-
+            
     # === Form Input (Single Prediction) ===
-    st.subheader("Option 1: Single Prediction (Manual Input)")
+    # st.subheader("Single Prediction (Manual Input)")
     with st.form("form_input"):
         general_health = st.selectbox('General Health', ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor'])
         age = st.number_input('Age', min_value=18, max_value=120, value=30)
@@ -328,6 +303,31 @@ elif page == "Prediction":
             st.error(f"Prediction failed: {e}")
 
     # === CSV Upload (Batch Prediction) ===
+    # Instructions
+    st.markdown("### 📄 CSV Format Information")
+    with st.expander("ℹ️ Click to view expected CSV structure and input format"):
+        st.markdown("""
+        The uploaded CSV must include the following columns **with valid values**:
+
+        - `GeneralHealth` → Excellent, Very Good, Good, Fair, Poor  
+        - `Age` → Numeric age (e.g., 30)  
+        - `HighBloodPressure` → Yes, No  
+        - `BMI` → Numeric (e.g., 27.5)  
+        - `Highcholesterol` → Yes, No  
+        - `AlcoholDrinkers` → Yes, No  
+        - `Gender` → Male, Female  
+        - `RaceEthnicityCategory` → Hispanic, White, Black, Asian, Other  
+        - `PhysicalActivities` → Yes, No  
+        - `DifficultyWalking` → Yes, No  
+        - `HouseholdIncome` → Numeric income (e.g., 52000)
+
+        ✅ Sample Row:
+        ```
+        Excellent,30,Yes,28.5,Yes,No,Female,White,Yes,No,52000
+        ```
+        ❗ Ensure column names match **exactly**.
+        """)
+        
     st.markdown("---")
     st.subheader("Option 2: Upload CSV for Batch Prediction")
     uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])

@@ -175,9 +175,9 @@ elif page == "Data Info":
             st.markdown(f"**{col}** ({len(unique_vals)} unique): {unique_vals[:20]}")
             if len(unique_vals) > 20:
                 st.caption("🔎 Showing only first 20 unique values")
-                
+
 elif page == "Prediction":
-    st.title("🩽 Diabetes Risk Prediction")
+    st.title("🩺 Diabetes Risk Prediction")
 
     try:
         loaded = joblib.load('model_GradientBoosting_SVMSMOTE_with_threshold.pkl')
@@ -276,82 +276,84 @@ elif page == "Prediction":
     # ==============================
     # Option 2: Batch CSV Upload
     # ==============================
-    st.markdown("---")
-    st.markdown("## 📄 CSV Format Information")
-    st.markdown("""
-    The uploaded CSV must include these columns:
+    with st.expander("📂 Option 2: Upload CSV for Batch Prediction", expanded=True):
+        st.markdown("#### 📄 CSV Format Information")
+        st.markdown("""
+        The uploaded CSV must include the following columns:
 
-    - `GeneralHealth` (e.g., Excellent, Good, Poor)  
-    - `Age` (numeric, e.g., 35)  
-    - `HighBloodPressure`, `Highcholesterol`, `AlcoholDrinkers`, `PhysicalActivities`, `DifficultyWalking` (Yes/No)  
-    - `Gender` (Male/Female)  
-    - `RaceEthnicityCategory` (White, Black, Asian, Hispanic, Other)  
-    - `BMI` (numeric)  
-    - `HouseholdIncome` (numeric, e.g., 52000)
+        - `GeneralHealth` (e.g., Excellent, Good, Poor)  
+        - `Age` (numeric, e.g., 35)  
+        - `HighBloodPressure`, `Highcholesterol`, `AlcoholDrinkers`, `PhysicalActivities`, `DifficultyWalking` (Yes/No)  
+        - `Gender` (Male/Female)  
+        - `RaceEthnicityCategory` (White, Black, Asian, Hispanic, Other)  
+        - `BMI` (numeric)  
+        - `HouseholdIncome` (numeric, e.g., 52000)
 
-    ✅ Sample row:
-    ```csv
-    Excellent,30,Yes,28.5,Yes,No,Female,White,Yes,No,52000
-    ```
-    """)
+        ✅ Sample row:
+        ```csv
+        Excellent,30,Yes,28.5,Yes,No,Female,White,Yes,No,52000
+        ```
+        ❗ Make sure column names match **exactly**.
+        """)
 
-    uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
+        uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
 
-    if uploaded_file:
-        try:
-            df = pd.read_csv(uploaded_file)
-            required = ['GeneralHealth', 'Age', 'HighBloodPressure', 'BMI', 'Highcholesterol',
-                        'AlcoholDrinkers', 'Gender', 'RaceEthnicityCategory',
-                        'PhysicalActivities', 'DifficultyWalking', 'HouseholdIncome']
-            if not set(required).issubset(df.columns):
-                st.error(f"Missing columns. Required: {required}")
-                st.stop()
+        if uploaded_file:
+            try:
+                df = pd.read_csv(uploaded_file)
+                required = ['GeneralHealth', 'Age', 'HighBloodPressure', 'BMI', 'Highcholesterol',
+                            'AlcoholDrinkers', 'Gender', 'RaceEthnicityCategory',
+                            'PhysicalActivities', 'DifficultyWalking', 'HouseholdIncome']
+                if not set(required).issubset(df.columns):
+                    st.error(f"Missing columns. Required: {required}")
+                    st.stop()
 
-            df['AgeCategory'] = df['Age'].apply(map_age_to_category)
-            df['IncomeCategory'] = df['HouseholdIncome'].apply(map_income_to_category)
-            df['BMI'] = df['BMI'].apply(lambda x: 1 if x < 25 else (2 if x < 30 else 3))
+                # Preprocessing
+                df['AgeCategory'] = df['Age'].apply(map_age_to_category)
+                df['IncomeCategory'] = df['HouseholdIncome'].apply(map_income_to_category)
+                df['BMI'] = df['BMI'].apply(lambda x: 1 if x < 25 else (2 if x < 30 else 3))
 
-            mappings = {
-                'GeneralHealth': {'Excellent': 5, 'Very Good': 4, 'Good': 3, 'Fair': 2, 'Poor': 1},
-                'AgeCategory': {'18-24': 21, '25-29': 27, '30-34': 32, '35-39': 37,
-                                '40-44': 42, '45-49': 47, '50-54': 52, '55-59': 57,
-                                '60-64': 62, '65-69': 67, '70-74': 72, '75-79': 77, '80+': 85},
-                'HighBloodPressure': {'Yes': 1, 'No': 0},
-                'Highcholesterol': {'Yes': 1, 'No': 0},
-                'AlcoholDrinkers': {'Yes': 1, 'No': 0},
-                'Gender': {'Male': 1, 'Female': 0},
-                'PhysicalActivities': {'Yes': 1, 'No': 0},
-                'DifficultyWalking': {'Yes': 1, 'No': 0},
-                'RaceEthnicityCategory': {'Hispanic': 1, 'White': 0, 'Black': 0, 'Asian': 0, 'Other': 0},
-                'IncomeCategory': {'<25k': 1, '25k-50k': 2, '50k-75k': 3, '75k-100k': 4, '100k+': 5}
-            }
+                mappings = {
+                    'GeneralHealth': {'Excellent': 5, 'Very Good': 4, 'Good': 3, 'Fair': 2, 'Poor': 1},
+                    'AgeCategory': {'18-24': 21, '25-29': 27, '30-34': 32, '35-39': 37,
+                                    '40-44': 42, '45-49': 47, '50-54': 52, '55-59': 57,
+                                    '60-64': 62, '65-69': 67, '70-74': 72, '75-79': 77, '80+': 85},
+                    'HighBloodPressure': {'Yes': 1, 'No': 0},
+                    'Highcholesterol': {'Yes': 1, 'No': 0},
+                    'AlcoholDrinkers': {'Yes': 1, 'No': 0},
+                    'Gender': {'Male': 1, 'Female': 0},
+                    'PhysicalActivities': {'Yes': 1, 'No': 0},
+                    'DifficultyWalking': {'Yes': 1, 'No': 0},
+                    'RaceEthnicityCategory': {'Hispanic': 1, 'White': 0, 'Black': 0, 'Asian': 0, 'Other': 0},
+                    'IncomeCategory': {'<25k': 1, '25k-50k': 2, '50k-75k': 3, '75k-100k': 4, '100k+': 5}
+                }
 
-            for col, mapping in mappings.items():
-                if col in df.columns:
-                    df[col] = df[col].map(mapping)
+                for col, mapping in mappings.items():
+                    if col in df.columns:
+                        df[col] = df[col].map(mapping)
 
-            df['HouseholdIncome'] = df['IncomeCategory']
-            df_input = df[feature_names]
+                df['HouseholdIncome'] = df['IncomeCategory']
+                df_input = df[feature_names]
 
-            probs = model.predict_proba(df_input)[:, 1]
-            preds = (probs >= threshold).astype(int)
+                probs = model.predict_proba(df_input)[:, 1]
+                preds = (probs >= threshold).astype(int)
 
-            df['DiabetesRiskProbability'] = probs
-            df['Prediction'] = preds
-            df['RiskLevel'] = df['Prediction'].map({0: 'Low Risk', 1: 'High Risk'})
+                df['DiabetesRiskProbability'] = probs
+                df['Prediction'] = preds
+                df['RiskLevel'] = df['Prediction'].map({0: 'Low Risk', 1: 'High Risk'})
 
-            st.success("\u2705 Batch prediction completed.")
-            st.dataframe(df[['DiabetesRiskProbability', 'RiskLevel']].join(df[feature_names]))
+                st.success("✅ Batch prediction completed.")
+                st.dataframe(df[['DiabetesRiskProbability', 'RiskLevel']].join(df[feature_names]))
 
-            st.download_button(
-                label="\ud83d\udcc5 Download Prediction Results",
-                data=df.to_csv(index=False).encode('utf-8'),
-                file_name="diabetes_predictions.csv",
-                mime="text/csv"
-            )
+                st.download_button(
+                    label="📥 Download Prediction Results",
+                    data=df.to_csv(index=False).encode('utf-8'),
+                    file_name="diabetes_predictions.csv",
+                    mime="text/csv"
+                )
 
-        except Exception as e:
-            st.error(f"❌ Error during batch prediction: {e}")
+            except Exception as e:
+                st.error(f"❌ Error during batch prediction: {e}")
 
 elif page == "About Project":
     st.title("📚 About This Research Project")

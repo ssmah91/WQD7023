@@ -177,8 +177,8 @@ elif page == "Data Info":
                 st.caption("🔎 Showing only first 20 unique values")
                 
 elif page == "Prediction":
-    st.title("🩺 Diabetes Risk Prediction")
-    
+    st.title("🩽 Diabetes Risk Prediction")
+
     try:
         loaded = joblib.load('model_GradientBoosting_SVMSMOTE_with_threshold.pkl')
         model = loaded['model']
@@ -187,7 +187,7 @@ elif page == "Prediction":
     except Exception as e:
         st.error(f"🚨 Error loading model: {e}")
         st.stop()
-    
+
     # === Mapping Functions ===
     def map_age_to_category(age):
         if age < 25: return '18-24'
@@ -203,19 +203,19 @@ elif page == "Prediction":
         elif age < 75: return '70-74'
         elif age < 80: return '75-79'
         else: return '80+'
-    
+
     def map_income_to_category(income):
         if income < 25000: return '<25k'
         elif income < 50000: return '25k-50k'
         elif income < 75000: return '50k-75k'
         elif income < 100000: return '75k-100k'
         else: return '100k+'
-    
+
     def categorize_bmi(bmi):
         if bmi < 25: return 'Normal'
         elif bmi < 30: return 'Overweight'
         else: return 'Obese'
-    
+
     # ==============================
     # Option 1: Manual Input Form
     # ==============================
@@ -233,7 +233,7 @@ elif page == "Prediction":
             walking_diff = st.selectbox('Difficulty Walking', ['Yes', 'No'])
             income = st.number_input('Household Income (numeric)', min_value=0, value=50000)
             submit = st.form_submit_button("Predict")
-    
+
         if submit:
             input_data = pd.DataFrame([{
                 'GeneralHealth': general_health,
@@ -248,7 +248,7 @@ elif page == "Prediction":
                 'DifficultyWalking': 1 if walking_diff == 'Yes' else 0,
                 'HouseholdIncome': map_income_to_category(income)
             }])
-    
+
             input_data['GeneralHealth'] = input_data['GeneralHealth'].map({'Excellent': 5, 'Very Good': 4, 'Good': 3, 'Fair': 2, 'Poor': 1})
             input_data['AgeCategory'] = input_data['AgeCategory'].map({
                 '18-24': 21, '25-29': 27, '30-34': 32, '35-39': 37,
@@ -258,7 +258,7 @@ elif page == "Prediction":
             input_data['HouseholdIncome'] = input_data['HouseholdIncome'].map({
                 '<25k': 1, '25k-50k': 2, '50k-75k': 3, '75k-100k': 4, '100k+': 5
             })
-    
+
             input_data = input_data[feature_names]
             try:
                 probability = model.predict_proba(input_data)[:, 1][0]
@@ -272,16 +272,15 @@ elif page == "Prediction":
                     st.markdown("**System Feedback:** Your risk appears low. Maintain healthy habits and regular check-ups.")
             except Exception as e:
                 st.error(f"Prediction failed: {e}")
-    
+
     # ==============================
     # Option 2: Batch CSV Upload
     # ==============================
-    
     st.markdown("---")
     st.markdown("## 📄 CSV Format Information")
     st.markdown("""
     The uploaded CSV must include these columns:
-    
+
     - `GeneralHealth` (e.g., Excellent, Good, Poor)  
     - `Age` (numeric, e.g., 35)  
     - `HighBloodPressure`, `Highcholesterol`, `AlcoholDrinkers`, `PhysicalActivities`, `DifficultyWalking` (Yes/No)  
@@ -289,68 +288,70 @@ elif page == "Prediction":
     - `RaceEthnicityCategory` (White, Black, Asian, Hispanic, Other)  
     - `BMI` (numeric)  
     - `HouseholdIncome` (numeric, e.g., 52000)
-    
+
     ✅ Sample row:
     ```csv
     Excellent,30,Yes,28.5,Yes,No,Female,White,Yes,No,52000
+    ```
+    """)
 
-""")
+    uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
 
-        if uploaded_file:
-            try:
-                df = pd.read_csv(uploaded_file)
-                required = ['GeneralHealth', 'Age', 'HighBloodPressure', 'BMI', 'Highcholesterol',
-                            'AlcoholDrinkers', 'Gender', 'RaceEthnicityCategory',
-                            'PhysicalActivities', 'DifficultyWalking', 'HouseholdIncome']
-                if not set(required).issubset(df.columns):
-                    st.error(f"Missing columns. Required: {required}")
-                    st.stop()
-        
-                df['AgeCategory'] = df['Age'].apply(map_age_to_category)
-                df['IncomeCategory'] = df['HouseholdIncome'].apply(map_income_to_category)
-                df['BMI'] = df['BMI'].apply(lambda x: 1 if x < 25 else (2 if x < 30 else 3))
-        
-                mappings = {
-                    'GeneralHealth': {'Excellent': 5, 'Very Good': 4, 'Good': 3, 'Fair': 2, 'Poor': 1},
-                    'AgeCategory': {'18-24': 21, '25-29': 27, '30-34': 32, '35-39': 37,
-                                    '40-44': 42, '45-49': 47, '50-54': 52, '55-59': 57,
-                                    '60-64': 62, '65-69': 67, '70-74': 72, '75-79': 77, '80+': 85},
-                    'HighBloodPressure': {'Yes': 1, 'No': 0},
-                    'Highcholesterol': {'Yes': 1, 'No': 0},
-                    'AlcoholDrinkers': {'Yes': 1, 'No': 0},
-                    'Gender': {'Male': 1, 'Female': 0},
-                    'PhysicalActivities': {'Yes': 1, 'No': 0},
-                    'DifficultyWalking': {'Yes': 1, 'No': 0},
-                    'RaceEthnicityCategory': {'Hispanic': 1, 'White': 0, 'Black': 0, 'Asian': 0, 'Other': 0},
-                    'IncomeCategory': {'<25k': 1, '25k-50k': 2, '50k-75k': 3, '75k-100k': 4, '100k+': 5}
-                }
-        
-                for col, mapping in mappings.items():
-                    if col in df.columns:
-                        df[col] = df[col].map(mapping)
-        
-                df['HouseholdIncome'] = df['IncomeCategory']
-                df_input = df[feature_names]
-        
-                probs = model.predict_proba(df_input)[:, 1]
-                preds = (probs >= threshold).astype(int)
-        
-                df['DiabetesRiskProbability'] = probs
-                df['Prediction'] = preds
-                df['RiskLevel'] = df['Prediction'].map({0: 'Low Risk', 1: 'High Risk'})
-        
-                st.success("✅ Batch prediction completed.")
-                st.dataframe(df[['DiabetesRiskProbability', 'RiskLevel']].join(df[feature_names]))
-        
-                st.download_button(
-                    label="📥 Download Prediction Results",
-                    data=df.to_csv(index=False).encode('utf-8'),
-                    file_name="diabetes_predictions.csv",
-                    mime="text/csv"
-                )
-        
-            except Exception as e:
-                st.error(f"❌ Error during batch prediction: {e}")
+    if uploaded_file:
+        try:
+            df = pd.read_csv(uploaded_file)
+            required = ['GeneralHealth', 'Age', 'HighBloodPressure', 'BMI', 'Highcholesterol',
+                        'AlcoholDrinkers', 'Gender', 'RaceEthnicityCategory',
+                        'PhysicalActivities', 'DifficultyWalking', 'HouseholdIncome']
+            if not set(required).issubset(df.columns):
+                st.error(f"Missing columns. Required: {required}")
+                st.stop()
+
+            df['AgeCategory'] = df['Age'].apply(map_age_to_category)
+            df['IncomeCategory'] = df['HouseholdIncome'].apply(map_income_to_category)
+            df['BMI'] = df['BMI'].apply(lambda x: 1 if x < 25 else (2 if x < 30 else 3))
+
+            mappings = {
+                'GeneralHealth': {'Excellent': 5, 'Very Good': 4, 'Good': 3, 'Fair': 2, 'Poor': 1},
+                'AgeCategory': {'18-24': 21, '25-29': 27, '30-34': 32, '35-39': 37,
+                                '40-44': 42, '45-49': 47, '50-54': 52, '55-59': 57,
+                                '60-64': 62, '65-69': 67, '70-74': 72, '75-79': 77, '80+': 85},
+                'HighBloodPressure': {'Yes': 1, 'No': 0},
+                'Highcholesterol': {'Yes': 1, 'No': 0},
+                'AlcoholDrinkers': {'Yes': 1, 'No': 0},
+                'Gender': {'Male': 1, 'Female': 0},
+                'PhysicalActivities': {'Yes': 1, 'No': 0},
+                'DifficultyWalking': {'Yes': 1, 'No': 0},
+                'RaceEthnicityCategory': {'Hispanic': 1, 'White': 0, 'Black': 0, 'Asian': 0, 'Other': 0},
+                'IncomeCategory': {'<25k': 1, '25k-50k': 2, '50k-75k': 3, '75k-100k': 4, '100k+': 5}
+            }
+
+            for col, mapping in mappings.items():
+                if col in df.columns:
+                    df[col] = df[col].map(mapping)
+
+            df['HouseholdIncome'] = df['IncomeCategory']
+            df_input = df[feature_names]
+
+            probs = model.predict_proba(df_input)[:, 1]
+            preds = (probs >= threshold).astype(int)
+
+            df['DiabetesRiskProbability'] = probs
+            df['Prediction'] = preds
+            df['RiskLevel'] = df['Prediction'].map({0: 'Low Risk', 1: 'High Risk'})
+
+            st.success("\u2705 Batch prediction completed.")
+            st.dataframe(df[['DiabetesRiskProbability', 'RiskLevel']].join(df[feature_names]))
+
+            st.download_button(
+                label="\ud83d\udcc5 Download Prediction Results",
+                data=df.to_csv(index=False).encode('utf-8'),
+                file_name="diabetes_predictions.csv",
+                mime="text/csv"
+            )
+
+        except Exception as e:
+            st.error(f"❌ Error during batch prediction: {e}")
 
 elif page == "About Project":
     st.title("📚 About This Research Project")

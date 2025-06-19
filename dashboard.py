@@ -219,7 +219,7 @@ elif page == "Prediction":
     # ==============================
     # Option 1: Manual Input Form
     # ==============================
-    # with st.expander("🧾 Option 1: Manual Input for Single Prediction", expanded=True):
+    with st.expander("🧾 Option 1: Manual Input for Single Prediction", expanded=True):
         with st.form("form_input"):
             general_health = st.selectbox('General Health', ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor'])
             age = st.number_input('Age', min_value=18, max_value=120, value=30)

@@ -219,7 +219,7 @@ elif page == "Prediction":
     # ==============================
     # Option 1: Manual Input Form
     # ==============================
-    with st.expander("🧾 Option 1: Manual Input for Single Prediction", expanded=True):
+    with st.expander("🧾 Option 1: Manual Input for Single Prediction", expanded=False):
         with st.form("form_input"):
             general_health = st.selectbox('General Health', ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor'])
             age = st.number_input('Age', min_value=18, max_value=120, value=30)
@@ -276,7 +276,7 @@ elif page == "Prediction":
     # ==============================
     # Option 2: Batch CSV Upload
     # ==============================
-    with st.expander("📂 Option 2: Upload CSV for Batch Prediction", expanded=True):
+    with st.expander("📂 Option 2: Upload CSV for Batch Prediction", expanded=False):
         st.markdown("#### 📄 CSV Format Information")
         st.markdown("""
         The uploaded CSV must include the following columns:

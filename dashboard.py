@@ -302,9 +302,12 @@ elif page == "Prediction":
         except Exception as e:
             st.error(f"Prediction failed: {e}")
 
+    st.markdown("---")
+
+    st.subheader("Upload CSV for Batch Prediction")
     # === CSV Upload (Batch Prediction) ===
     # Instructions
-    st.markdown("### 📄 CSV Format Information")
+    st.markdown("#### 📄 CSV Format Information")
     with st.expander("ℹ️ Click to view expected CSV structure and input format"):
         st.markdown("""
         The uploaded CSV must include the following columns **with valid values**:
@@ -328,8 +331,6 @@ elif page == "Prediction":
         ❗ Ensure column names match **exactly**.
         """)
         
-    st.markdown("---")
-    st.subheader("Option 2: Upload CSV for Batch Prediction")
     uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
 
     if uploaded_file:

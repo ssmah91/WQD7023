@@ -37,8 +37,14 @@ if page == "Home":
         .stApp {
             background: url('https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExemp0Z2Z2ZWs1eWFpcGF2NXVhMnJvaGprbXRldXEzbzA0MjFhYnFidSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7VzgMsB6FLCilwS30v/giphy.gif') no-repeat center center fixed;
             background-size: cover;
-            color: black;
+            color: white;
         }
+        
+        /* Sidebar (Navigation) background color */
+        section[data-testid="stSidebar"] {
+            background-color: black !important;
+        }
+        
         .big-font {
             font-size: 40px !important;
             font-weight: bold;

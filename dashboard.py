@@ -103,7 +103,7 @@ elif page == "Data Info":
             return 'Overweight'
         else:
             return 'Obese'
-    df['BMI'] = df['BMI'].apply(categorize_bmi)
+    df['BMICategory'] = df['BMI'].apply(categorize_bmi)
 
     # Mapping for all other categorical values
     mappings = {

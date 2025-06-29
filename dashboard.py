@@ -8,6 +8,8 @@ import seaborn as sns
 import pygwalker as pyg
 from pygwalker.api.streamlit import StreamlitRenderer
 from sklearn.ensemble import GradientBoostingClassifier
+import streamlit.components.v1 as components
+import base64
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -387,9 +389,19 @@ elif page == "About Project":
     """)
 
     st.subheader("📽️ Research Slides")
-    st.markdown("""
-    👉 [View Full Slides](https://your-link.com)
-    """)
+    
+    # # Optional external link (if hosted elsewhere too)
+    # st.markdown("👉 [View Full Slides](https://your-link.com)")
+    
+    # Load your local PDF file
+    with open("your_slide.pdf", "rb") as f:
+        base64_pdf = base64.b64encode(f.read()).decode("utf-8")
+    
+    # Embed the PDF using an iframe
+    pdf_display = f"""
+        <iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf"></iframe>
+    """
+    components.html(pdf_display, height=600)
 
     st.subheader("🙌 Acknowledgements")
     st.markdown("""

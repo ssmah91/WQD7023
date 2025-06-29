@@ -40,9 +40,11 @@ if page == "Home":
             color: white;
         }
         
-        /* Sidebar (Navigation) background color */
-        section[data-testid="stSidebar"] {
-            background-color: black !important;
+        /* Only change the "Navigation" title text color */
+        section[data-testid="stSidebar"] h1,
+        section[data-testid="stSidebar"] h2,
+        section[data-testid="stSidebar"] h3 {
+            color: black !important;
         }
         
         .big-font {

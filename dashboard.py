@@ -388,16 +388,14 @@ elif page == "About Project":
     """)
 
     st.subheader("📽️ Research Slides")
-                
-    # Embed the Google Drive PDF using the preview link
-    pdf_url = "https://drive.google.com/file/d/1Ldr3JVvoylGyUUHpiyDCJzXqd9KcHLcd/preview"
-
-    # Embed the PDF using an iframe
+    
+    slides_url = "https://docs.google.com/presentation/d/1WMJ6AQWyNCu3HYQx5S03gW1d-Hf5Gdk9/embed?start=false&loop=false&delayms=5000"
+    
     components.html(
-        f'<iframe src="{pdf_url}" width="100%" height="600px" type="application/pdf"></iframe>',
+        f'<iframe src="{slides_url}" frameborder="0" width="100%" height="600px" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>',
         height=600
     )
-
+    
     st.subheader("🙌 Acknowledgements")
     st.markdown("""
     - Supervisor: Dr. Nazean Binti Jomhari

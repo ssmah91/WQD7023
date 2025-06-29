@@ -388,8 +388,8 @@ elif page == "About Project":
     """)
 
     st.subheader("📽️ Research Slides")
-    
-    pdf_url = "https://github.com/ssmah91/WQD7023/blob/main/Slide.pdf"
+                
+    pdf_url = "https://raw.githubusercontent.com/ssmah91/WQD7023/blob/main/Slide.pdf"
     
     # Embed the PDF using an iframe
     components.html(

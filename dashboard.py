@@ -389,13 +389,13 @@ elif page == "About Project":
 
     st.subheader("📽️ Research Slides")
     
-    slides_url = "https://docs.google.com/presentation/d/1WMJ6AQWyNCu3HYQx5S03gW1d-Hf5Gdk9/embed?start=false&loop=false&delayms=5000"
+    slides_url = "https://docs.google.com/presentation/d/1OFcUW9a8YSRUDbQguluGyIokz4dGY4zVRt0B4Jr3r08/preview"
     
     components.html(
-        f'<iframe src="{slides_url}" frameborder="0" width="100%" height="600px" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>',
+        f'<iframe src="{slides_url}" width="100%" height="600px" allowfullscreen></iframe>',
         height=600
     )
-    
+        
     st.subheader("🙌 Acknowledgements")
     st.markdown("""
     - Supervisor: Dr. Nazean Binti Jomhari

@@ -37,7 +37,7 @@ if page == "Home":
         .stApp {
             background: url('https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExemp0Z2Z2ZWs1eWFpcGF2NXVhMnJvaGprbXRldXEzbzA0MjFhYnFidSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7VzgMsB6FLCilwS30v/giphy.gif') no-repeat center center fixed;
             background-size: cover;
-            color: white;
+            color: black;
         }
         .big-font {
             font-size: 40px !important;

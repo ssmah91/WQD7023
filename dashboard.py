@@ -380,11 +380,6 @@ elif page == "About Project":
     st.subheader("🛠️ Project Repository")
     st.markdown("""
     🔗 [View the code on GitHub](https://github.com/ssmah91/WQD7023)
-
-    Contents:
-    - Streamlit dashboard code
-    - Pretrained models and preprocessing scripts
-    - Dataset and analysis notebooks
     """)
 
     st.subheader("📽️ Research Slides")

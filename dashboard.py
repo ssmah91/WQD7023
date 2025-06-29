@@ -389,8 +389,9 @@ elif page == "About Project":
 
     st.subheader("📽️ Research Slides")
                 
-    pdf_url = "https://raw.githubusercontent.com/ssmah91/WQD7023/blob/main/Slide.pdf"
-    
+    # Embed the Google Drive PDF using the preview link
+    pdf_url = "https://drive.google.com/file/d/1Ldr3JVvoylGyUUHpiyDCJzXqd9KcHLcd/preview"
+
     # Embed the PDF using an iframe
     components.html(
         f'<iframe src="{pdf_url}" width="100%" height="600px" type="application/pdf"></iframe>',
